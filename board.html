@@ -105,13 +105,12 @@
   /* ================= 档案室白底滚动区 ================= */
   .file-scroll-area {
     width: 90%; max-width: 800px;
-    height: 70vh; /* 限制高度，开启滑动 */
+    height: 70vh; 
     background: #f5f5f5;
     border: 2px solid #bbb;
-    overflow-y: auto; /* 允许纵向滑动 */
+    overflow-y: auto; 
     padding: 20px;
     box-shadow: inset 0 0 20px rgba(0,0,0,0.1);
-    /* 隐藏滚动条（可选） */
     scrollbar-width: none; 
   }
   .file-scroll-area::-webkit-scrollbar { display: none; }
@@ -120,22 +119,35 @@
   .file-box {
     background: #fff;
     border: 1px solid #ccc;
-    padding: 30px;
+    padding: 25px;
     margin-bottom: 25px;
     text-align: center;
     box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    transition: all 0.3s;
   }
 
-  /* 档案标题 */
+  /* 如果是可点击的档案框，加个悬停效果 */
+  .file-box.clickable { cursor: pointer; }
+  .file-box.clickable:active { background: #eee; }
+
   .file-title {
     color: #333; font-size: 1.2rem; font-weight: bold; margin-bottom: 15px;
     border-bottom: 1px dashed #eee; padding-bottom: 10px; letter-spacing: 2px;
   }
 
-  /* 档案内容（占位符） */
   .file-content {
     color: #888; font-size: 1.1rem; letter-spacing: 4px;
   }
+
+  /* ================= 案件详情弹窗 ================= */
+  .detail-box {
+    background: #fff; width: 85%; max-width: 700px; height: 70vh;
+    padding: 30px; border: 2px solid #999; overflow-y: auto;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5); color: #222;
+  }
+  .detail-title { font-size: 1.5rem; font-weight: bold; color: #b32020; text-align: center; margin-bottom: 20px; border-bottom: 2px solid #b32020; padding-bottom: 10px;}
+  .detail-text { font-size: 1.1rem; line-height: 2; text-indent: 2em; }
+  .detail-text p { margin-bottom: 15px; }
 
 </style>
 </head>
@@ -193,10 +205,10 @@
     <!-- 白色滚动区域 -->
     <div class="file-scroll-area">
       
-      <!-- 档案 1 -->
-      <div class="file-box">
-        <div class="file-title">小事档案 01</div>
-        <div class="file-content">？？？</div>
+      <!-- 第一个档案：改成可点击，标题已更新 -->
+      <div class="file-box clickable" onclick="showDetail()">
+        <div class="file-title">王婆婆和李嫂起了争执</div>
+        <div class="file-content">【点击查看详情】</div>
       </div>
 
       <!-- 档案 2 -->
@@ -249,8 +261,25 @@
 
     </div>
 
-    <!-- 返回按钮放在白底外面，免得挡住档案 -->
     <div class="close-popup" onclick="closeAll()" style="background: #000; border-color: #333;">【 返回公告板 】</div>
+  </div>
+
+  <!-- 4. 小事的详细内容弹窗 -->
+  <div class="popup" id="detailPopup">
+    <div class="detail-box">
+      <div class="detail-title">王婆婆和李嫂起了争执</div>
+      <div class="detail-text">
+        <p>王婆婆原名王圣衣，年龄68，李嫂原名李媛，年龄32。</p>
+        <p>王婆婆是一个水果摊贩。一天她正在卖水果时，李嫂来和她买1斤苹果。王婆婆就按她说的拿了几颗，但是，当李嫂让王婆婆去称重时，王婆婆坚决不行，她说她做了那么多年，对重量的把控绝对精准。</p>
+        <p>于是李嫂只能放弃了。过后李嫂回到家总感觉心里不舒服，于是她拿来了体重秤称了一下。</p>
+        <p>不秤不知道，一秤吓一跳，只有500g！</p>
+        <p>李嫂气的脸红像一个苹果。第二天她回去找王婆婆，她吼道：“为什么只有五百克！？”</p>
+        <p>王婆婆说到：“我不知道啊，我拿的一直都是准的，该不会是你自己把几颗苹果拿掉了讹钱吧😅”</p>
+        <p>李嫂气的要死，于是两人便一直吵了下去。引来了许多村里人来看笑话，最后还是副村长出面调解。</p>
+      </div>
+    </div>
+    <!-- 最下方返回小事页面 -->
+    <div class="close-popup" onclick="closeDetail()" style="background: #000; border-color: #333;">【 返回小事页面 】</div>
   </div>
 
 <script>
@@ -295,10 +324,21 @@
     }
   }
 
+  // 显示王婆婆的详细内容
+  function showDetail() {
+    document.getElementById('detailPopup').classList.add('show');
+  }
+
+  // 关闭详细内容，返回小事页面
+  function closeDetail() {
+    document.getElementById('detailPopup').classList.remove('show');
+  }
+
   function closeAll() {
     document.getElementById('lostPopup').classList.remove('show');
     document.getElementById('lockPopup').classList.remove('show');
     document.getElementById('unlockedPopup').classList.remove('show');
+    document.getElementById('detailPopup').classList.remove('show');
     document.getElementById('errorMsg').style.display = 'none';
     document.getElementById('dateInput').value = '';
     document.getElementById('nameInput').value = '';
