@@ -32,24 +32,21 @@
     justify-content: center; align-items: center;
     transition: opacity 1s ease;
   }
-  .title { color: #ff2b2b; font-size: 2rem; letter-spacing: 6px; margin-bottom: 20px; text-shadow: 0 0 15px rgba(255,0,0,0.5); }
+  .title { color: #ff2b2b; font-size: 2rem; letter-spacing: 6px; margin-bottom: 20px; }
   .desc { color: #888; font-size: 1.1rem; line-height: 2; letter-spacing: 2px; margin-bottom: 40px; text-align: center; }
   
-  /* 关键：初始状态 pointer-events: none，禁止点击 */
+  /* 核心防误触：初始透明，且 pointer-events 设为 none */
   .enter-btn {
     padding: 15px 50px; background: transparent; border: 1px solid #555;
     color: #aaa; font-size: 1.2rem; letter-spacing: 4px; cursor: pointer;
     opacity: 0; pointer-events: none; 
-    animation: fadeInBtn 2s 1.5s forwards;
+    transition: opacity 2s ease; /* 2秒后变清晰 */
+  }
+  /* 当 JS 加上 .show 后，才允许点击 */
+  .enter-btn.show {
+    opacity: 1; pointer-events: auto; 
   }
   .enter-btn:active { border-color: #ff2b2b; color: #ff2b2b; }
-  
-  /* 动画结束后，自动开启点击判定 */
-  @keyframes fadeInBtn {
-    0% { opacity: 0; pointer-events: none; }
-    99% { opacity: 1; pointer-events: none; }
-    100% { opacity: 1; pointer-events: auto; } 
-  }
 
   /* ================= 页面2：风景 ================= */
   .page2 {
@@ -60,6 +57,7 @@
     transition: opacity 1.5s ease;
   }
   
+  /* 用 cover 铺满全屏，保证比例不崩溃 */
   .bg-img {
     position: absolute; top: 0; left: 0; width: 100%; height: 100%;
     object-fit: cover; z-index: -1;
@@ -74,15 +72,12 @@
   }
   .welcome-text.show { opacity: 1; transform: translateY(0); filter: blur(0); }
   
-  /* 关键：开始探索按钮也用 pointer-events 防误触 */
   .start-btn {
     margin-top: 20px; padding: 12px 40px; background: rgba(0,0,0,0.6); 
     border: 1px solid #555; color: #aaa; font-size: 1.2rem; letter-spacing: 4px;
     cursor: pointer; opacity: 0; pointer-events: none; transition: all 0.5s;
   }
-  /* 当 JS 加上 .show 后，才允许点击 */
   .start-btn.show { opacity: 1; pointer-events: auto; }
-  .start-btn:active { border-color: #ff2b2b; color: #ff2b2b; }
 
   @media (orientation: landscape) and (max-height: 500px) {
     .welcome-text { font-size: 2.5rem; letter-spacing: 8px; }
@@ -101,7 +96,7 @@
       <p>本游戏包含闪烁画面与强光特效。</p>
       <p>光敏性癫痫患者或心脏不适者请立即离开。</p>
     </div>
-    <button class="enter-btn" onclick="goToPage2()">我已了解，进入游戏</button>
+    <button class="enter-btn" id="enterBtn" onclick="goToPage2()">我已了解，进入游戏</button>
   </div>
 
   <!-- 第二页 -->
@@ -112,6 +107,13 @@
   </div>
 
 <script>
+  // 页面加载完毕后，延迟 1.5 秒让警告按钮出现，再延迟 0.5 秒开启点击
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      document.getElementById('enterBtn').classList.add('show');
+    }, 1500);
+  });
+
   function goToPage2() {
     document.getElementById('page1').style.opacity = '0';
     setTimeout(() => {
@@ -119,15 +121,14 @@
       document.getElementById('page2').style.opacity = '1';
       document.getElementById('page2').style.pointerEvents = 'auto';
       
-      // 2秒后文字浮现
       setTimeout(() => {
         document.getElementById('welcomeText').classList.add('show');
       }, 2000);
       
-      // 3秒后按钮彻底浮现并允许点击
+      // 文字完全出来后，再等1.5秒让按钮浮现
       setTimeout(() => {
         document.getElementById('startBtn').classList.add('show');
-      }, 3000);
+      }, 3500);
     }, 1000);
   }
 
