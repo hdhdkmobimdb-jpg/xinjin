@@ -7,44 +7,92 @@
 <style>
   * { margin:0; padding:0; box-sizing:border-box; }
   body {
+    -webkit-user-select: none; user-select: none;
     height: 100vh; height: 100dvh;
-    background-color: #0a0a0a; color: #fff;
-    display: flex; justify-content: center; align-items: center;
-    font-family: "SimSun", serif; overflow: hidden;
+    background-color: #0a0a0a;
+    display: flex; flex-direction: column;
+    justify-content: center; align-items: center;
+    font-family: "SimSun", serif;
+    overflow: hidden;
+    position: relative;
   }
+  
+  /* 手机竖屏拦截 */
   .rotate {
     display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-    background: #000; z-index: 9999; justify-content: center; align-items: center; color: #8a0f0f;
+    background: #000; z-index: 9999; justify-content: center; align-items: center;
+    color: #8a0f0f; font-size: 1.5rem;
   }
   @media (orientation: portrait) and (max-width: 1024px) { .rotate { display: flex; } }
 
-  .board {
-    width: 80%; max-width: 900px; background: #151515;
-    border: 2px solid #333; padding: 30px;
+  /* 👇 背景图层 3.jpg 👇 */
+  .bg-img {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    object-fit: cover; z-index: -1;
+    filter: brightness(0.5) contrast(1.2); /* 稍微调暗一点，让文字更清楚，更有压抑感 */
   }
-  .header { text-align: center; font-size: 1.8rem; border-bottom: 2px solid #444; padding-bottom: 15px; margin-bottom: 20px; }
-  .admin { display: flex; justify-content: space-around; color: #888; margin-bottom: 30px; }
+
+  /* 公告板主容器 */
+  .board-container {
+    width: 80%; max-width: 900px;
+    background: rgba(10, 10, 10, 0.85); /* 半透明黑底，透出一点背后的图 */
+    border: 2px solid #333;
+    padding: 30px;
+    box-shadow: inset 0 0 50px rgba(0,0,0,1), 0 10px 30px rgba(0,0,0,0.8);
+    backdrop-filter: blur(4px); /* 背景模糊效果，高级感拉满 */
+  }
+
+  .header {
+    text-align: center; color: #ccc; font-size: 1.8rem;
+    letter-spacing: 5px; border-bottom: 2px solid #444;
+    padding-bottom: 15px; margin-bottom: 20px;
+  }
+
+  .admin-list {
+    display: flex; justify-content: space-around;
+    color: #888; font-size: 1.2rem; margin-bottom: 30px;
+  }
+  .admin-list span { border-bottom: 1px dashed #444; padding-bottom: 5px; }
+
   .tasks { display: flex; justify-content: space-around; }
-  .btn {
-    width: 45%; padding: 20px; background: #1a1a1a; border: 1px solid #333;
-    color: #aaa; font-size: 1.4rem; text-align: center; cursor: pointer;
+  
+  .task-btn {
+    width: 45%; padding: 20px; background: rgba(26, 26, 26, 0.9);
+    border: 1px solid #333; color: #aaa; font-size: 1.4rem;
+    text-align: center; letter-spacing: 4px; cursor: pointer;
+    transition: all 0.3s;
   }
-  .btn:active { background: #2a0a0a; border-color: #6a0f0f; color: #ff2b2b; }
+  .task-btn:active { background: #2a0a0a; border-color: #6a0f0f; color: #ff2b2b; }
+
+  .footer-warning {
+    text-align: center; color: #444; font-size: 0.9rem;
+    margin-top: 30px; letter-spacing: 2px;
+  }
 </style>
 </head>
 <body>
+
   <div class="rotate">请将手机横屏</div>
-  <div class="board">
+
+  <!-- 👇 引入 3.jpg 作为背景 👇 -->
+  <img class="bg-img" src="3.jpg">
+
+  <div class="board-container">
     <div class="header">新京村村委会公告板</div>
-    <div class="admin">
-      <span>管理员：赵某某</span>
+    
+    <div class="admin-list">
+      <span>村内管理员：赵某某</span>
       <span>村长：李某某</span>
       <span>副村长：王某某</span>
     </div>
+
     <div class="tasks">
-      <div class="btn" onclick="alert('档案室已上锁。')">村内小事</div>
-      <div class="btn" onclick="alert('资料已被撕毁。')">村内大事</div>
+      <div class="task-btn" onclick="alert('【村内小事】档案室已上锁。')">村内小事</div>
+      <div class="task-btn" onclick="alert('【村内大事】资料已被撕毁。')">村内大事</div>
     </div>
+
+    <div class="footer-warning">（请村民及外来访客注意言行）</div>
   </div>
+
 </body>
 </html>
