@@ -24,7 +24,7 @@
     z-index: -1;
   }
   
-  /* 这里记得换成你上传的图片名 */
+  /* 换成你上传的图片名 */
   #page1 { background-image: url('./bg1.jpg'); }
   #page2 { background-image: url('./bg2.jpg'); }
   #page3 { background-image: url('./bg3.jpg'); }
@@ -37,27 +37,29 @@
   }
   .text-box.show { opacity: 1; }
 
-  /* 底部按钮排版容器 */
-  .controls {
+  /* 底部按钮区域：分别靠左、靠右 */
+  .btn-area {
     display: flex; justify-content: space-between; align-items: center;
-    width: 100%; margin-top: 20px; opacity: 0; transition: opacity 1.5s ease;
+    width: 100%; opacity: 0; transition: opacity 1.5s ease;
   }
-  .controls.show { opacity: 1; }
+  .btn-area.show { opacity: 1; }
 
-  /* 播放声音按钮 */
-  .audio-btn {
-    padding: 12px 30px; background: rgba(255,255,255,0.05);
-    border: 1px dashed #666; color: #aaa; font-size: 1.1rem; cursor: pointer;
-    letter-spacing: 2px;
+  /* 独立的播放音频按钮 */
+  .play-btn {
+    padding: 12px 30px; background: transparent; border: 1px solid #555;
+    color: #aaa; font-size: 1.1rem; cursor: pointer; border-radius: 4px;
   }
-  .audio-btn:active { background: rgba(255,255,255,0.2); color: #fff; }
+  .play-btn:active { background: #333; color: #fff; }
 
-  /* 下一页按钮 */
+  /* 独立的下一页按钮 */
   .next-btn {
-    padding: 12px 40px; background: rgba(255,255,255,0.1);
-    border: 1px solid #666; color: #fff; font-size: 1.1rem; cursor: pointer;
+    padding: 12px 40px; background: rgba(255,255,255,0.1); border: 1px solid #888;
+    color: #fff; font-size: 1.1rem; cursor: pointer; border-radius: 4px;
   }
-  .next-btn:active { background: #333; }
+  .next-btn:active { background: #444; }
+
+  /* 隐藏的占位符，用来把下一页按钮挤到右边 */
+  .spacer { width: 1px; }
 
   .rotate {
     display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
@@ -71,7 +73,7 @@
 
   <div class="rotate">请将手机横屏</div>
 
-  <!-- 隐藏的音频文件，确保名字和 GitHub 上的一模一样 -->
+  <!-- 隐藏的音频文件 -->
   <audio id="audio1" src="./666.mp3" preload="auto"></audio>
   <audio id="audio2" src="./91.mp3" preload="auto"></audio>
 
@@ -81,9 +83,10 @@
       你叫邓凯，你的好兄弟樂乌说他要去一个地方旅行。<br><br>
       结果3天了，你发的消息一条没回。于是你决定去所谓的新京村看看。
     </div>
-    <div class="controls" id="ctrl1">
-      <!-- 独立播放按钮 -->
-      <button class="audio-btn" onclick="playAudio('audio1')">▶ 播放旁白</button>
+    <div class="btn-area" id="ctrl1">
+      <!-- 独立的播放按钮 -->
+      <button class="play-btn" onclick="playAudio('audio1')">▶ 播放旁白</button>
+      <!-- 独立的下一页按钮 -->
       <button class="next-btn" onclick="nextPage(2, 2)">下一页</button>
     </div>
   </div>
@@ -94,9 +97,9 @@
       你坐在家里，看着手机屏幕发呆。<br><br>
       心里总有一种说不出的不安感。
     </div>
-    <div class="controls" id="ctrl2">
-      <!-- 第二页如果有音频，也可以加在这里。没有就不加 -->
-      <div></div> <!-- 占位符，把下一页挤到右边 -->
+    <div class="btn-area" id="ctrl2">
+      <!-- 这页没有音频，用空占位符把下一页挤到右边 -->
+      <div class="spacer"></div>
       <button class="next-btn" onclick="nextPage(3, 3)">下一页</button>
     </div>
   </div>
@@ -106,9 +109,10 @@
     <div class="text-box" id="text3">
       邓凯喃喃自语：<br><br>“先去浏览器看看。”
     </div>
-    <div class="controls" id="ctrl3">
-      <!-- 独立播放按钮 -->
-      <button class="audio-btn" onclick="playAudio('audio2')">▶ 播放录音</button>
+    <div class="btn-area" id="ctrl3">
+      <!-- 独立的播放按钮 -->
+      <button class="play-btn" onclick="playAudio('audio2')">▶ 播放录音</button>
+      <!-- 独立的进入手机按钮 -->
       <button class="next-btn" onclick="window.location.href='./phone.html'">进入手机</button>
     </div>
   </div>
@@ -121,31 +125,29 @@
     }, 500);
   });
 
-  // 专门播放声音的函数
+  // 独立的播放音频功能
   function playAudio(audioId) {
     // 先把所有可能在播放的音频暂停
-    var a1 = document.getElementById('audio1');
-    var a2 = document.getElementById('audio2');
-    a1.pause(); a1.currentTime = 0;
-    a2.pause(); a2.currentTime = 0;
-
-    // 播放目标音频
+    document.getElementById('audio1').pause();
+    document.getElementById('audio2').pause();
+    
+    // 重置播放进度并播放
     var audio = document.getElementById(audioId);
-    audio.play().catch(e => {
-      console.log("播放被拦截或文件错误");
-      alert("音频播放失败，请确保 666.mp3 或 91.mp3 已正确上传！");
-    });
+    audio.currentTime = 0;
+    audio.play().catch(e => alert("播放失败，请确认音频文件已上传且名字正确！"));
   }
 
-  // 翻页逻辑
+  // 纯翻页功能
   function nextPage(pageNum, textNum) {
     // 翻页时，把正在播放的声音关掉
     document.getElementById('audio1').pause();
     document.getElementById('audio2').pause();
 
+    // 切换页面
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.getElementById('page' + pageNum).classList.add('active');
     
+    // 延迟显示新文字和新按钮
     setTimeout(() => { 
       document.getElementById('text' + textNum).classList.add('show'); 
       document.getElementById('ctrl' + textNum).classList.add('show');
