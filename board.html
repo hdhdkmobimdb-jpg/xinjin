@@ -96,9 +96,8 @@
 
   .error-msg { color: #ff2b2b; font-size: 1rem; margin-top: 15px; display: none; }
 
-  /* 档案室真实页面 */
-  .real-doc-text { color: #ccc; font-size: 1.5rem; line-height: 2; text-align: center; }
-  .real-doc-text span { color: #ff2b2b; font-weight: bold; }
+  /* 留给玩家自己填写的空白页 */
+  .empty-doc-text { color: #aaa; font-size: 1.5rem; line-height: 2; text-align: center; letter-spacing: 5px; }
 
   .close-popup {
     margin-top: 40px; padding: 12px 30px; background: rgba(255,255,255,0.1); border: 1px solid #666;
@@ -155,28 +154,19 @@
     <div class="close-popup" onclick="closeAll()">【 放弃进入 】</div>
   </div>
 
-  <!-- 3. 解锁后的真实档案 -->
+  <!-- 3. 解锁后的页面（这里的内容留给你自己写） -->
   <div class="popup" id="unlockedPopup">
-    <div class="real-doc-text">
-      <p>档案室的门打开了。</p>
-      <p>桌上只有一份残破的资料：</p>
-      <p>“他的妻子失踪后，<span>遗体至今未找到</span>。”</p>
-      <p>“那场一万元的葬礼，棺材里是空的。”</p>
+    <div class="empty-doc-text">
+      <p>【这里的内容留给你自己写】</p>
     </div>
     <div class="close-popup" onclick="closeAll()">【 返回公告板 】</div>
   </div>
 
 <script>
-  // 页面加载时，检查是否已经解开过密码
   window.addEventListener('load', () => {
     setTimeout(() => { document.getElementById('boardPanel').classList.add('show'); }, 500); 
-    
-    // 如果以前解过密，把存档读出来（这里可以预留给你以后加后续剧情用）
-    let isUnlocked = localStorage.getItem('xjj_unlocked');
-    // 如果想让玩家解过一次以后不再输密码，可以在这里做判定
   });
 
-  // 点击王力石三次
   let wangClickCount = 0;
   function clickWang() {
     wangClickCount++;
@@ -189,8 +179,15 @@
     document.getElementById('lostPopup').classList.add('show');
   }
 
+  // 👇 检查密码：如果是解过密的，直接跳过输入框 👇
   function showLock() {
-    document.getElementById('lockPopup').classList.add('show');
+    if (localStorage.getItem('xjj_unlocked') === 'true') {
+      // 如果已经解锁过了，直接打开里面的内容
+      document.getElementById('unlockedPopup').classList.add('show');
+    } else {
+      // 没解锁过，才弹出密码框
+      document.getElementById('lockPopup').classList.add('show');
+    }
   }
 
   function checkPassword() {
@@ -199,9 +196,7 @@
     const error = document.getElementById('errorMsg');
 
     if (date === '960705' && name === '王力石') {
-      // 密码正确！
-      
-      // 👇 这里写入永久存档：把解锁状态记在手机里 👇
+      // 👇 密码正确，写入永久存档 👇
       localStorage.setItem('xjj_unlocked', 'true');
 
       document.getElementById('lockPopup').classList.remove('show');
