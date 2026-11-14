@@ -7,54 +7,124 @@
 <style>
   * { margin:0; padding:0; box-sizing:border-box; }
   body {
-    height: 100vh; background: #000;
-    display: flex; justify-content: center; align-items: center;
-    font-family: "SimSun", serif; overflow: hidden; position: relative;
+    -webkit-user-select: none; user-select: none;
+    height: 100vh; height: 100dvh;
+    background-color: #000;
+    display: flex; flex-direction: column;
+    justify-content: center; align-items: center;
+    font-family: "SimSun", serif;
+    overflow: hidden;
+    position: relative;
   }
-  .page { display: none; width: 100%; height: 100%; flex-direction: column; justify-content: center; align-items: center; }
-  .page.active { display: flex; }
   
-  /* 风景图 */
+  /* 手机竖屏拦截 */
+  .rotate {
+    display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    background: #000; z-index: 9999; justify-content: center; align-items: center;
+    color: #8a0f0f; font-size: 1.5rem; letter-spacing: 4px;
+  }
+  @media (orientation: portrait) and (max-width: 1024px) { .rotate { display: flex; } }
+
+  /* 页面1：警告页 */
+  .page1 {
+    position: absolute; width: 100%; height: 100%;
+    display: flex; flex-direction: column;
+    justify-content: center; align-items: center;
+    transition: opacity 1s ease;
+  }
+  .title { color: #ff2b2b; font-size: 2rem; letter-spacing: 6px; margin-bottom: 20px; text-shadow: 0 0 15px rgba(255,0,0,0.5); }
+  .desc { color: #888; font-size: 1.1rem; line-height: 2; letter-spacing: 2px; margin-bottom: 40px; text-align: center; }
+  .enter-btn {
+    padding: 15px 50px; background: transparent; border: 1px solid #555;
+    color: #aaa; font-size: 1.2rem; letter-spacing: 4px; cursor: pointer;
+    transition: all 0.5s; opacity: 0; animation: fadeIn 2s 1.5s forwards;
+  }
+  .enter-btn:active { border-color: #ff2b2b; color: #ff2b2b; }
+  @keyframes fadeIn { to { opacity: 1; } }
+
+  /* 页面2：风景页 */
+  .page2 {
+    position: absolute; width: 100%; height: 100%;
+    display: flex; flex-direction: column;
+    justify-content: center; align-items: flex-start;
+    padding-left: 10%; opacity: 0; pointer-events: none;
+    transition: opacity 1.5s ease;
+  }
+  
   .bg-img {
     position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-    object-fit: cover; z-index: -1; filter: brightness(0.7);
+    object-fit: cover; z-index: -1;
+    filter: brightness(0.7) contrast(1.1); 
   }
   
-  .title { color: #ff2b2b; font-size: 2rem; margin-bottom: 20px; }
-  .welcome-text { color: #fff; font-size: 3rem; letter-spacing: 8px; margin-bottom: 30px; z-index: 10; }
+  .welcome-text {
+    color: #fff; font-size: 3.5rem; letter-spacing: 10px;
+    text-shadow: 0 0 20px rgba(0,0,0,1), 0 0 10px rgba(255,255,255,0.3);
+    opacity: 0; transform: translateY(20px); filter: blur(5px);
+    transition: all 3s ease; margin-bottom: 20px;
+  }
+  .welcome-text.show { opacity: 1; transform: translateY(0); filter: blur(0); }
   
-  /* 所有按钮的通用样式 */
-  button {
-    padding: 12px 40px; background: rgba(0,0,0,0.6); border: 1px solid #555;
-    color: #fff; font-size: 1.2rem; cursor: pointer; z-index: 10;
+  .start-btn {
+    margin-top: 20px; padding: 12px 40px; background: rgba(0,0,0,0.6); 
+    border: 1px solid #555; color: #aaa; font-size: 1.2rem; letter-spacing: 4px;
+    cursor: pointer; opacity: 0; transition: all 0.5s;
+  }
+  .start-btn.show { opacity: 1; pointer-events: auto; }
+  .start-btn:active { border-color: #ff2b2b; color: #ff2b2b; }
+
+  @media (orientation: landscape) and (max-height: 500px) {
+    .welcome-text { font-size: 2.5rem; letter-spacing: 8px; }
+    .page2 { padding-left: 8%; }
   }
 </style>
 </head>
 <body>
 
-  <!-- 页面 1：警告页 -->
-  <div class="page active" id="page1">
+  <div class="rotate">请将手机横屏</div>
+
+  <!-- 第一页 -->
+  <div class="page1" id="page1">
     <div class="title">警告</div>
-    <p style="color:#888; margin-bottom:30px;">光敏性癫痫患者请离开</p>
-    <button onclick="goToPage2()">我已了解，进入游戏</button>
+    <div class="desc">
+      <p>本游戏包含闪烁画面与强光特效。</p>
+      <p>光敏性癫痫患者或心脏不适者请立即离开。</p>
+    </div>
+    <button class="enter-btn" onclick="goToPage2()">我已了解，进入游戏</button>
   </div>
 
-  <!-- 页面 2：风景图 -->
-  <div class="page" id="page2">
-    <!-- 👇 这里直接写图片名 2.jpg，绝对不卡 -->
+  <!-- 第二页 -->
+  <div class="page2" id="page2">
+    
+    <!-- 👇 直接使用你 GitHub 上的图片名，丝滑加载 👇 -->
     <img class="bg-img" src="2.jpg">
-    <div class="welcome-text">欢迎来到新京村</div>
-    <button onclick="goToBoard()">开始探索</button>
+    
+    <div class="welcome-text" id="welcomeText">欢迎来到新京村</div>
+    <button class="start-btn" id="startBtn" onclick="goToBoard()">开始探索</button>
   </div>
 
 <script>
-  // 第一步：切到风景页
+  // 第一页到第二页的过渡逻辑
   function goToPage2() {
-    document.getElementById('page1').classList.remove('active');
-    document.getElementById('page2').classList.add('active');
+    document.getElementById('page1').style.opacity = '0';
+    setTimeout(() => {
+      document.getElementById('page1').style.display = 'none';
+      document.getElementById('page2').style.opacity = '1';
+      document.getElementById('page2').style.pointerEvents = 'auto';
+      
+      // 2秒后文字缓慢浮现
+      setTimeout(() => {
+        document.getElementById('welcomeText').classList.add('show');
+      }, 2000);
+      
+      // 再等1秒按钮浮现
+      setTimeout(() => {
+        document.getElementById('startBtn').classList.add('show');
+      }, 3000);
+    }, 1000);
   }
 
-  // 第二步：真正跳转到公告板网页
+  // 真正的网页跳转
   function goToBoard() {
     window.location.href = 'board.html';
   }
