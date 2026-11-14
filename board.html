@@ -22,13 +22,11 @@
   }
   @media (orientation: portrait) and (max-width: 1024px) { .rotate { display: flex; } }
 
-  /* 黑色遮罩 */
   body::before {
     content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
     background: rgba(0, 0, 0, 0.6); z-index: -1;
   }
 
-  /* 公告板主容器 */
   .board-container {
     width: 80%; max-width: 900px;
     background: rgba(10, 10, 10, 0.85); 
@@ -51,7 +49,6 @@
   }
   .admin-list span { border-bottom: 1px dashed #444; padding-bottom: 5px; }
   
-  /* 王力石点击区域 */
   #wlshi { cursor: pointer; color: #888; transition: color 0.3s; }
   #wlshi:active { color: #ff2b2b; }
 
@@ -65,7 +62,6 @@
 
   .footer-warning { text-align: center; color: #444; font-size: 0.9rem; margin-top: 30px; letter-spacing: 2px; }
 
-  /* ================= 弹窗通用层 ================= */
   .popup {
     position: absolute; top: 0; left: 0; width: 100%; height: 100%;
     background: rgba(0,0,0,0.95); 
@@ -74,11 +70,9 @@
   }
   .popup.show { opacity: 1; pointer-events: auto; }
 
-  /* 1. 网页丢失弹窗 */
   .lost-text { color: #888; font-size: 3rem; letter-spacing: 5px; font-family: sans-serif; }
   .lost-sub { color: #444; font-size: 1rem; margin-top: 20px; }
 
-  /* 2. 密码锁弹窗 */
   .lock-box {
     background: #111; border: 1px solid #333; padding: 30px; width: 80%; max-width: 500px;
     display: flex; flex-direction: column; align-items: center; box-shadow: 0 0 50px rgba(0,0,0,0.9);
@@ -102,13 +96,14 @@
 
   .error-msg { color: #ff2b2b; font-size: 1rem; margin-top: 15px; display: none; }
 
-  /* 3. 制作中弹窗 */
   .making-text { color: #ccc; font-size: 2rem; letter-spacing: 10px; }
 
-  /* 关闭按钮 */
+  /* 👇 加大的返回按钮 👇 */
   .close-popup {
-    margin-top: 30px; color: #555; font-size: 1rem; cursor: pointer; text-decoration: underline;
+    margin-top: 40px; padding: 12px 30px; background: rgba(255,255,255,0.1); border: 1px solid #666;
+    color: #ccc; font-size: 1.1rem; letter-spacing: 2px; cursor: pointer; border-radius: 4px;
   }
+  .close-popup:active { background: #333; }
 </style>
 </head>
 <body>
@@ -120,7 +115,6 @@
     
     <div class="admin-list">
       <span>村长：李永信</span>
-      <!-- 👇 王力石点击三次触发 👇 -->
       <span id="wlshi" onclick="clickWang()">副村长：王力石</span>
     </div>
 
@@ -136,7 +130,7 @@
   <div class="popup" id="lostPopup">
     <div class="lost-text">404 Not Found</div>
     <div class="lost-sub">网页丢失</div>
-    <div class="close-popup" onclick="closeAll()">返回公告板</div>
+    <div class="close-popup" onclick="closeAll()">【 返回公告板 】</div>
   </div>
 
   <!-- 2. 密码锁弹窗 -->
@@ -157,13 +151,13 @@
       <button class="submit-btn" onclick="checkPassword()">我是村里人</button>
       <div class="error-msg" id="errorMsg">密码或名字错误，非本村人禁止入内！</div>
     </div>
-    <div class="close-popup" onclick="closeAll()">放弃进入</div>
+    <div class="close-popup" onclick="closeAll()">【 返回公告板 】</div>
   </div>
 
   <!-- 3. 制作中弹窗 -->
   <div class="popup" id="makingPopup">
     <div class="making-text">档案室 - 制作中...</div>
-    <div class="close-popup" onclick="closeAll()">返回</div>
+    <div class="close-popup" onclick="closeAll()">【 返回公告板 】</div>
   </div>
 
 <script>
@@ -176,45 +170,43 @@
   function clickWang() {
     wangClickCount++;
     if (wangClickCount >= 3) {
-      window.location.href = 'wanglishi.html'; // 跳转到隐藏页面
+      // 加上 ./ 确保在当前目录下找文件
+      window.location.href = './wanglishi.html'; 
     }
   }
 
-  // 显示网页丢失
   function showLost() {
     document.getElementById('lostPopup').classList.add('show');
   }
 
-  // 显示密码锁
   function showLock() {
     document.getElementById('lockPopup').classList.add('show');
   }
 
-  // 验证密码和名字
   function checkPassword() {
     const date = document.getElementById('dateInput').value.trim();
     const name = document.getElementById('nameInput').value.trim();
     const error = document.getElementById('errorMsg');
 
-    // 密码是 960705，名字是 王力石
     if (date === '960705' && name === '王力石') {
       document.getElementById('lockPopup').classList.remove('show');
       document.getElementById('makingPopup').classList.add('show');
     } else {
       error.style.display = 'block';
-      // 加个震动效果
       document.getElementById('lockPopup').style.transform = 'translateX(10px)';
       setTimeout(() => { document.getElementById('lockPopup').style.transform = 'translateX(-10px)'; }, 100);
       setTimeout(() => { document.getElementById('lockPopup').style.transform = 'translateX(0)'; }, 200);
     }
   }
 
-  // 关闭所有弹窗
   function closeAll() {
     document.getElementById('lostPopup').classList.remove('show');
     document.getElementById('lockPopup').classList.remove('show');
     document.getElementById('makingPopup').classList.remove('show');
     document.getElementById('errorMsg').style.display = 'none';
+    // 关闭时清空输入框
+    document.getElementById('dateInput').value = '';
+    document.getElementById('nameInput').value = '';
   }
 </script>
 </body>
