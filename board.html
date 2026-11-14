@@ -9,7 +9,7 @@
   body {
     -webkit-user-select: none; user-select: none;
     height: 100vh; height: 100dvh;
-    background-color: #000; /* 纯黑底色，填满多余空间 */
+    background-color: #000;
     display: flex; flex-direction: column;
     justify-content: center; align-items: center;
     font-family: "SimSun", serif;
@@ -24,18 +24,15 @@
   }
   @media (orientation: portrait) and (max-width: 1024px) { .rotate { display: flex; } }
 
-  /* 👇 核心修改：锁定图片的比例 👇 */
+  /* 背景图：锁定 640:426 比例 */
   .bg-img {
-    position: absolute; 
-    top: 0; left: 0; width: 100%; height: 100%;
-    
-    /* contain：保证图片完整显示，绝对不拉伸，按 640:426 比例缩放 */
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
     object-fit: contain; 
-    
     z-index: -1;
-    filter: brightness(0.6) contrast(1.2); /* 调暗，让公告板更清晰 */
+    filter: brightness(0.6) contrast(1.2); 
   }
 
+  /* 主面板：初始透明且防误触 */
   .board-container {
     width: 80%; max-width: 900px;
     background: rgba(10, 10, 10, 0.85); 
@@ -43,7 +40,19 @@
     padding: 30px;
     box-shadow: inset 0 0 50px rgba(0,0,0,1), 0 10px 30px rgba(0,0,0,0.8);
     backdrop-filter: blur(4px);
-    position: relative; /* 确保在图片上方 */
+    position: relative;
+    
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(20px);
+    transition: all 2s ease; /* 2秒渐显动画 */
+  }
+
+  /* 当 JS 加上 .show 后，才允许点击 */
+  .board-container.show {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
   }
 
   .header {
@@ -78,20 +87,21 @@
 
   <div class="rotate">请将手机横屏</div>
 
-  <!-- 引入 3.jpg -->
+  <!-- 引入 3.jpg 作为背景 -->
   <img class="bg-img" src="3.jpg">
 
-  <div class="board-container">
+  <!-- 添加了 id="boardPanel" 用于 JS 控制浮现 -->
+  <div class="board-container" id="boardPanel">
     <div class="header">新京村村委会公告板</div>
     
     <div class="admin-list">
       <span>村内管理员：赵某某</span>
-      <span>村长：李某某</span>
-      <span>副村长：王某某</span>
+      <!-- 👇 名字已改 -->
+      <span>村长：李永信</span>
+      <span>副村长：王力石</span>
     </div>
 
     <div class="tasks">
-      <!-- 点击事件，暂时给你个提示 -->
       <div class="task-btn" onclick="alert('【村内小事】档案室已上锁。')">村内小事</div>
       <div class="task-btn" onclick="alert('【村内大事】资料已被撕毁。')">村内大事</div>
     </div>
@@ -99,5 +109,13 @@
     <div class="footer-warning">（请村民及外来访客注意言行）</div>
   </div>
 
+<script>
+  // 当页面加载完后，稍微停顿一下，让面板慢慢浮现出来
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      document.getElementById('boardPanel').classList.add('show');
+    }, 500); // 0.5秒后开始浮现
+  });
+</script>
 </body>
 </html>
