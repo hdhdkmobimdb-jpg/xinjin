@@ -17,7 +17,7 @@
     position: relative;
   }
   
-  /* 手机竖屏拦截 */
+  /* ================= 手机竖屏拦截 ================= */
   .rotate {
     display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
     background: #000; z-index: 9999; justify-content: center; align-items: center;
@@ -25,7 +25,7 @@
   }
   @media (orientation: portrait) and (max-width: 1024px) { .rotate { display: flex; } }
 
-  /* 页面1：警告页 */
+  /* ================= 页面1：警告 ================= */
   .page1 {
     position: absolute; width: 100%; height: 100%;
     display: flex; flex-direction: column;
@@ -42,7 +42,7 @@
   .enter-btn:active { border-color: #ff2b2b; color: #ff2b2b; }
   @keyframes fadeIn { to { opacity: 1; } }
 
-  /* 页面2：风景页 */
+  /* ================= 页面2：风景 ================= */
   .page2 {
     position: absolute; width: 100%; height: 100%;
     display: flex; flex-direction: column;
@@ -96,7 +96,7 @@
   <!-- 第二页 -->
   <div class="page2" id="page2">
     
-    <!-- 👇 直接使用你 GitHub 上的图片名，丝滑加载 👇 -->
+    <!-- 👇 这里替换成了 2.jpg，只要图在仓库里就能完美加载 👇 -->
     <img class="bg-img" src="2.jpg">
     
     <div class="welcome-text" id="welcomeText">欢迎来到新京村</div>
@@ -104,7 +104,6 @@
   </div>
 
 <script>
-  // 第一页到第二页的过渡逻辑
   function goToPage2() {
     document.getElementById('page1').style.opacity = '0';
     setTimeout(() => {
@@ -112,12 +111,12 @@
       document.getElementById('page2').style.opacity = '1';
       document.getElementById('page2').style.pointerEvents = 'auto';
       
-      // 2秒后文字缓慢浮现
+      // 2秒后文字浮现
       setTimeout(() => {
         document.getElementById('welcomeText').classList.add('show');
       }, 2000);
       
-      // 再等1秒按钮浮现
+      // 3秒后按钮浮现
       setTimeout(() => {
         document.getElementById('startBtn').classList.add('show');
       }, 3000);
