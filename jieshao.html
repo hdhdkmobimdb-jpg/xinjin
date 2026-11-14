@@ -11,26 +11,20 @@
     height: 100vh; height: 100dvh; background-color: #000; color: #ccc;
     font-family: "SimSun", serif; overflow: hidden;
   }
-  
-  /* 页面容器 */
   .page {
     position: absolute; top: 0; left: 0; width: 100%; height: 100%;
     display: none; flex-direction: column; justify-content: flex-end; padding: 40px 10%;
     background-size: cover; background-position: center;
   }
   .page.active { display: flex; }
-  
-  /* 背景遮罩 */
   .page::before {
     content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
     background: linear-gradient(to bottom, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.9) 100%);
     z-index: -1;
   }
-  
-  /* 替换为你上传的图片名 */
-  #page1 { background-image: url('bg1.jpg'); }
-  #page2 { background-image: url('bg2.jpg'); }
-  #page3 { background-image: url('bg3.jpg'); }
+  #page1 { background-image: url('./bg1.jpg'); }
+  #page2 { background-image: url('./bg2.jpg'); }
+  #page3 { background-image: url('./bg3.jpg'); }
 
   .text-box {
     font-size: 1.3rem; line-height: 2; letter-spacing: 2px;
@@ -38,7 +32,6 @@
     opacity: 0; transition: opacity 1.5s ease;
   }
   .text-box.show { opacity: 1; }
-
   .next-btn {
     align-self: flex-end; padding: 10px 30px; background: rgba(255,255,255,0.1);
     border: 1px solid #666; color: #ccc; font-size: 1rem; cursor: pointer;
@@ -46,7 +39,6 @@
   }
   .next-btn.show { opacity: 1; }
   .next-btn:active { background: #333; }
-
   .rotate {
     display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
     background: #000; z-index: 9999; justify-content: center; align-items: center;
@@ -59,8 +51,7 @@
 
   <div class="rotate">请将手机横屏</div>
 
-  <!-- 第一页 -->
-  <div class="page active" id="page1">
+  <div class="page active" id="page666">
     <div class="text-box" id="text1">
       你叫邓凯，你的好兄弟樂乌说他要去一个地方旅行。<br><br>
       结果3天了，你发的消息一条没回。于是你决定去所谓的新京村看看。
@@ -68,8 +59,7 @@
     <button class="next-btn" id="btn1" onclick="nextPage(2, 2)">下一页</button>
   </div>
 
-  <!-- 第二页 -->
-  <div class="page" id="page2">
+  <div class="page" id="page91">
     <div class="text-box" id="text2">
       你坐在家里，看着手机屏幕发呆。<br><br>
       心里总有一种说不出的不安感。
@@ -77,71 +67,42 @@
     <button class="next-btn" id="btn2" onclick="nextPage(3, 3)">下一页</button>
   </div>
 
-  <!-- 第三页 -->
-  <div class="page" id="page3">
+  <div class="page" id="page78">
     <div class="text-box" id="text3">
       邓凯喃喃自语：<br><br>“先去浏览器看看。”
     </div>
-    <button class="next-btn" id="btn3" onclick="window.location.href='phone.html'">进入手机</button>
+    <!-- 跳转加 ./ -->
+    <button class="next-btn" id="btn3" onclick="window.location.href='./phone.html'">进入手机</button>
   </div>
 
 <script>
-  // 页面加载完成后，播放第一段录音并显示文字
   window.addEventListener('load', () => {
-    // 0.5秒后显示文字
     setTimeout(() => { 
       document.getElementById('text1').classList.add('show'); 
-      
-      // 尝试播放音频（注意：因为浏览器限制，音频可能有延迟或需用户点击一次才能播放）
-      playAudio('voice1.mp3');
-      
+      playAudio('./voice1.mp3');
     }, 500);
-    
-    // 2秒后显示下一页按钮
-    setTimeout(() => { 
-      document.getElementById('btn1').classList.add('show'); 
-    }, 2000);
+    setTimeout(() => { document.getElementById('btn1').classList.add('show'); }, 2000);
   });
 
   function nextPage(pageNum, textNum) {
-    // 停止播放当前可能还在播放的音频
     stopAudio();
-
-    // 切换页面
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.getElementById('page' + pageNum).classList.add('active');
-    
-    // 淡入文字
     setTimeout(() => { 
       document.getElementById('text' + textNum).classList.add('show'); 
-      
-      // 播放对应的音频
-      if (textNum === 2) playAudio('voice2.mp3');
-      if (textNum === 3) playAudio('voice3.mp3');
-      
+      if (textNum === 2) playAudio('./voice2.mp3');
+      if (textNum === 3) playAudio('./voice3.mp3');
     }, 300);
-    
-    // 淡入按钮
-    setTimeout(() => { 
-      document.getElementById('btn' + textNum).classList.add('show'); 
-    }, 1500);
+    setTimeout(() => { document.getElementById('btn' + textNum).classList.add('show'); }, 1500);
   }
 
-  // 播放音频的逻辑
   let currentAudio = null;
   function playAudio(audioFile) {
-    // 如果你没传音频，或者文件名错了，也不会报错，只是没声音
     currentAudio = new Audio(audioFile);
-    // 部分安卓浏览器需要静音或用户交互才能播放，如果你发现没声音，可能玩家需要点一下屏幕
-    currentAudio.play().catch(e => console.log("浏览器拦截了自动播放，需要用户点击"));
+    currentAudio.play().catch(e => console.log("需点击才能播放"));
   }
-
   function stopAudio() {
-    if (currentAudio) {
-      currentAudio.pause();
-      currentAudio.currentTime = 0;
-      currentAudio = null;
-    }
+    if (currentAudio) { currentAudio.pause(); currentAudio = null; }
   }
 </script>
 </body>
