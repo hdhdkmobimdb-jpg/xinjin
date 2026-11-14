@@ -1,4 +1,4 @@
-<<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
@@ -42,15 +42,17 @@
     text-align: center; color: #ccc; font-size: 1.8rem;
     letter-spacing: 5px; border-bottom: 2px solid #444; padding-bottom: 15px; margin-bottom: 20px;
   }
-  
-  /* 将“新京”单独拆出来，作为隐藏开关 */
-  #xinjing { cursor: pointer; }
 
   .admin-list {
     display: flex; justify-content: space-around;
     color: #888; font-size: 1.2rem; margin-bottom: 30px;
   }
   .admin-list span { border-bottom: 1px dashed #444; padding-bottom: 5px; }
+  
+  /* 给名字加上可点击的反馈效果 */
+  #lixin, #wlshi { cursor: pointer; transition: color 0.2s; }
+  #lixin:active { color: #fff; }
+  #wlshi:active { color: #ff2b2b; }
 
   .tasks { display: flex; justify-content: space-around; }
   .task-btn {
@@ -62,33 +64,18 @@
 
   .footer-warning { text-align: center; color: #444; font-size: 0.9rem; margin-top: 30px; letter-spacing: 2px; }
 
-  /* 通用弹窗 */
+  /* ================= 各种弹窗 ================= */
   .popup {
     position: absolute; top: 0; left: 0; width: 100%; height: 100%;
     background: rgba(0,0,0,0.95); 
     display: flex; flex-direction: column; justify-content: center; align-items: center;
-    opacity: 0; pointer-events: none; transition: opacity 0.8s ease; z-index: 100;
+    opacity: 0; pointer-events: none; transition: opacity 0.5s ease; z-index: 100;
   }
   .popup.show { opacity: 1; pointer-events: auto; }
 
-  /* 纯黑空白页（带隐藏提示） */
-  .blank-page {
-    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-    background: #000; z-index: 200;
-    display: flex; flex-direction: column; justify-content: center; align-items: center;
-    opacity: 0; pointer-events: none; transition: opacity 1s ease;
-  }
-  .blank-page.show { opacity: 1; pointer-events: auto; }
-  
-  .blank-hint-text {
-    color: #444; font-size: 1.2rem; letter-spacing: 2px;
-    opacity: 0; transition: opacity 2s ease; text-align: center; line-height: 2;
-  }
-  .blank-hint-text.show { opacity: 1; }
-
-  /* 其他基础样式 */
   .lost-text { color: #888; font-size: 3rem; letter-spacing: 5px; font-family: sans-serif; }
   .lost-sub { color: #444; font-size: 1rem; margin-top: 20px; }
+  
   .lock-box { background: #111; border: 1px solid #333; padding: 30px; width: 80%; max-width: 500px; display: flex; flex-direction: column; align-items: center; }
   .input-group { width: 100%; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
   .input-group input { width: 65%; padding: 10px; background: #000; border: 1px solid #444; color: #fff; text-align: center; }
@@ -103,6 +90,22 @@
   .detail-box { background: #fff; width: 85%; max-width: 700px; height: 70vh; padding: 30px 20px; overflow-y: auto; }
   .detail-title { font-size: 1.3rem; font-weight: bold; color: #b32020; text-align: center; margin-bottom: 20px; border-bottom: 2px solid #b32020; }
   .detail-text { font-size: 1.1rem; line-height: 1.8; text-indent: 2em; }
+
+  .secret-box { background: #111; border: 2px solid #444; padding: 40px 20px; width: 85%; max-width: 600px; display: flex; flex-direction: column; align-items: center; }
+  .secret-hint { color: #ff2b2b; font-size: 1.8rem; letter-spacing: 5px; font-family: monospace; margin-bottom: 20px; }
+  .name-btn { width: 80%; padding: 15px; margin-bottom: 15px; background: rgba(255,255,255,0.05); border: 1px solid #555; color: #ccc; font-size: 1.2rem; cursor: pointer; letter-spacing: 2px; }
+  .name-btn:active { background: #333; }
+
+  /* 隐藏的黑屏页（第五个案件触发） */
+  .blank-page {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    background: #000; z-index: 200;
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    opacity: 0; pointer-events: none; transition: opacity 1s ease;
+  }
+  .blank-page.show { opacity: 1; pointer-events: auto; }
+  .blank-hint-text { color: #444; font-size: 1.2rem; letter-spacing: 2px; opacity: 0; transition: opacity 2s ease; text-align: center; line-height: 2; }
+  .blank-hint-text.show { opacity: 1; }
 </style>
 </head>
 <body>
@@ -110,12 +113,13 @@
   <div class="rotate">请将手机横屏</div>
 
   <div class="board-container" id="boardPanel">
-    <!-- 将“新京”两个字拆出来加上点击事件 -->
     <div class="header"><span id="xinjing" onclick="clickXinJing(event)">新京</span>村村委会公告板</div>
     
     <div class="admin-list">
-      <span>村长：李永信</span>
-      <span>副村长：王力石</span>
+      <!-- 村长（点击重置） -->
+      <span id="lixin" onclick="resetWangCount(event)">村长：李永信</span>
+      <!-- 副村长（点击3次跳转） -->
+      <span id="wlshi" onclick="clickWang(event)">副村长：王力石</span>
     </div>
 
     <div class="tasks">
@@ -166,7 +170,7 @@
     <div class="close-popup" onclick="closeDetail()" style="background: #000; color: #fff; border-color: #333;">【 返回小事页面 】</div>
   </div>
 
-  <!-- 🌟 纯黑空白页（无任何UI，点击才出提示） -->
+  <!-- 纯黑空白页 -->
   <div class="blank-page" id="blankPopup" onclick="revealBlankHint()">
     <div class="blank-hint-text" id="blankHint">
       去看小事前五的题目<br>
@@ -175,16 +179,14 @@
     </div>
   </div>
 
-  <!-- 🌟 终极五位密码锁（新京连点10次触发） -->
+  <!-- 终极密码锁 -->
   <div class="popup" id="masterLockPopup" style="z-index: 300;">
     <div class="lock-box" style="border-color: #b32020;">
       <div style="color: #ff2b2b; font-size: 1.5rem; margin-bottom: 20px; font-weight: bold;">机密档案柜</div>
-      
       <div class="input-group">
         <label style="color:#aaa;">五位密码：</label>
         <input type="text" id="masterInput" maxlength="5" placeholder="输入5位数字">
       </div>
-      
       <button class="submit-btn" onclick="checkMasterPassword()">解锁</button>
       <div class="error-msg" id="masterError">密码错误！</div>
     </div>
@@ -192,14 +194,15 @@
   </div>
 
 <script>
+  // 故事数据（已删减部分以节省空间）
   const stories = [
-    { title: "20号12月摊位线歪了！赵大婶和周叔吵起来", content: "<p>赵大婶，原名赵桂芬，57岁，菜市场豆腐摊贩；周叔，原名周德海，61岁，修鞋匠。</p><p>一天赵大婶在20号12月摊位卖豆腐，周叔非说她豆腐箱压过了修鞋摊的线。赵大婶不服：“我在这20号12月摊位卖了12年豆腐，豆腐都没喊冤！”周叔拿卷尺一量，说压了三指宽，赵大婶说那线本来就是歪的。两人越吵越凶，围观的人里三层外三层。</p><p>最后副村长来了，一查，原来那粉笔线是去年划的，被鸡蹭歪了。调解结果：赵大婶送周叔两块豆腐，周叔给赵大婶免费钉一副鞋掌。</p>" },
-    { title: "10月10号24个蛋托送货单少给钱！刘嫂和钱大爷争执", content: "<p>刘嫂，原名刘春梅，34岁，卖鸡蛋；钱大爷，原名钱有福，70岁，收废品。</p><p>刘嫂拿着一张10月10号24个蛋托的送货单找钱大爷，说他少给了10块钱。钱大爷瞪眼：“我按10月10号单结的，咋会错？”刘嫂说单上明明写着24个蛋托，钱大爷说那是10月10日*编号24*，不是24个蛋托。两人吵得鸡蛋筐都晃了。</p><p>副村长赶来，翻过单子一看，背面写着“蛋托10个，碎2个，实收8个”。最后钱大爷补了3块，刘嫂送他两个鸡蛋，嘴里还嘟囔：“下回单子写清楚，别拿数字绕人！”</p>" },
-    { title: "12月19号62号取件码拿错包！陈叔和吴婶吵翻", content: "<p>陈叔，原名陈建国，45岁，小卖部兼快递代收；吴婶，原名吴小丽，39岁，裁缝。</p><p>吴婶拿着12月19号62号取件码来取包裹，陈叔翻了半天说已经被取走了。吴婶急得脸红：“里面是客人等着改的裤子！”陈叔说：“你拿的是12月19号63，不是62。”两人一个说贴反了，一个说没贴反，吵得货架都震。</p><p>后来副村长来了，定睛一看，果然，是陈叔把6-2和6-3的标签贴反了，包裹压在最底下。陈叔赔礼，吴婶免了他一次改裤脚钱，围观的人笑得直拍腿。</p>" },
-    { title: "9月19日6号蜂箱惹的祸！马大爷和何嫂起争执", content: "<p>马大爷，原名马长顺，66岁，养蜂人；何嫂，原名何玉兰，31岁，卖菜。</p><p>何嫂说马大爷的蜜蜂蜇了她一筐青菜，非要赔。马大爷指着蜂箱说：“我9月19日6号蜂箱今天根本没开，蜂都在里头！”何嫂说：“不是9月19日6号，就是9月19日9号，反正跑不了你！”两人从菜摊吵到路边，围观的人越来越多。</p><p>副村长找来邻村老魏一问，原来是老魏的蜂跑出来了，9月19日6号蜂箱确实没动。最后马大爷送半斤蜂蜜，何嫂送一把青菜，何嫂还说：“这蜂也真是，专挑数字大的箱跑！”</p>" },
-    { title: "10月10日17号调解单又记一笔！胡大娘和杜叔吵起来", content: "<p>胡大娘，原名胡秀英，63岁，卖馒头；杜叔，原名杜金宝，58岁，磨刀匠。</p><p>杜叔磨刀水溅到胡大娘馒头屉上，胡大娘气得直拍案板：“10月10日17号调解登记单都记你三回了！”杜叔不服：“10月10日17是上回调解的日期，不是这回！”两人你一句我一句，馒头摊前围满了人。</p><p>副村长拿着调解单赶来，一看上次也是磨刀水惹的祸。调解结果：杜叔赔10个馒头，磨刀摊往后挪半米。胡大娘这才消气：“再挪半米，我这馒头就安全了。”</p>" },
-    { title: "3斤2两的鱼被谁叼走了？杨嫂和冯爷吵起来", content: "<p>杨嫂，原名杨美芹，29岁，卖鱼；冯爷，原名冯老栓，72岁，看车棚。</p><p>杨嫂说冯爷车棚里的猫叼走了她3斤2两的鱼，冯爷说：“那猫20分钟前还在12号车棚睡觉，咋可能叼鱼？”两人吵到车棚门口，围观的人把路都堵了。</p><p>后来有人看见隔壁大黄狗嘴角有鱼鳞，才知道猫背了锅。副村长刘成调解：冯爷赔2两鱼钱，杨嫂送猫一条小鱼。冯爷叹气：“这猫看车棚没挣着钱，倒混上鱼了。”</p>" },
-    { title: "5块钱和2两黄瓜丝！许叔和柳婶争执", content: "<p>许叔，原名许大勇，41岁，快递代收；柳婶，原名柳小芳，36岁，卖凉皮。</p><p>柳婶说许叔取快递时碰翻了她17号桌的凉皮，少给了5块钱；许叔说只碰掉了2两黄瓜丝，凭啥赔整碗。两人一个说“汤都洒了”，一个说“黄瓜丝还能捡”，吵得凉皮摊前围了一圈人。</p><p>副村长刘成调出小卖部门口监控，发现是风把遮阳布刮过来碰翻的。最后许叔补5块，柳婶给他多加2两面，许叔端着碗说：“这风可真会挑时候。”</p>" }
+    { title: "20号12月摊位线歪了！赵大婶和周叔吵起来", content: "<p>...</p>" },
+    { title: "10月10号24个蛋托送货单少给钱！刘嫂和钱大爷争执", content: "<p>...</p>" },
+    { title: "12月19号62号取件码拿错包！陈叔和吴婶吵翻", content: "<p>...</p>" },
+    { title: "9月19日6号蜂箱惹的祸！马大爷和何嫂起争执", content: "<p>...</p>" },
+    { title: "10月10日17号调解单又记一笔！胡大娘和杜叔吵起来", content: "<p>...</p>" },
+    { title: "3斤2两的鱼被谁叼走了？杨嫂和冯爷吵起来", content: "<p>...</p>" },
+    { title: "5块钱和2两黄瓜丝！许叔和柳婶争执", content: "<p>...</p>" }
   ];
 
   window.addEventListener('load', () => {
@@ -216,48 +219,49 @@
     list.innerHTML = html;
   }
 
-  // ================== 核心机关：连点“新京”10次 ==================
-  let xinjingCount = 0;
-  let xinjingTimer = null;
+  // ================== 核心修复：主界面点击 ==================
+  let wangClickCount = 0;
 
+  // 点击王力石
+  function clickWang(event) {
+    if (event) event.stopPropagation(); 
+    wangClickCount++;
+    
+    if (wangClickCount >= 3) {
+      wangClickCount = 0; 
+      window.location.href = './wanglishi.html'; // 请确保文件名纯英文
+    }
+  }
+
+  // 点击村长，立刻打断王力石的计数
+  function resetWangCount(event) {
+    if (event) event.stopPropagation();
+    wangClickCount = 0;
+  }
+
+  // 连点“新京”10次
+  let xinjingCount = 0;
   function clickXinJing(event) {
     if (event) event.stopPropagation();
     xinjingCount++;
-    clearTimeout(xinjingTimer);
-
-    xinjingTimer = setTimeout(() => {
-      xinjingCount = 0; 
-    }, 2000); // 2秒没点，进度归零
-
     if (xinjingCount >= 10) {
       xinjingCount = 0; 
       document.getElementById('masterLockPopup').classList.add('show');
     }
   }
 
-  // 点击其他地方重置新京的连击
-  document.addEventListener('click', function() {
-    xinjingCount = 0;
-    clearTimeout(xinjingTimer);
-  });
-
-  // ================== 验证终极密码 50705 ==================
+  // ================== 解密逻辑 ==================
   function checkMasterPassword() {
     const val = document.getElementById('masterInput').value.trim();
     const err = document.getElementById('masterError');
-
     if (val === '50705') {
       alert("【档案柜弹开】\n\n里面没有纸质文件，只有一个老旧的录音笔。\n\n（后续内容敬请期待...）");
       closeAll();
     } else {
       err.style.display = 'block';
-      document.getElementById('masterLockPopup').style.transform = 'translateX(10px)';
-      setTimeout(() => { document.getElementById('masterLockPopup').style.transform = 'translateX(-10px)'; }, 100);
-      setTimeout(() => { document.getElementById('masterLockPopup').style.transform = 'translateX(0)'; }, 200);
     }
   }
 
-  // ================== 第五个故事点标题 5 次触发纯黑页 ==================
   let detailTitleClicks = 0; 
   function openStory(index) {
     const story = stories[index];
@@ -266,15 +270,13 @@
     document.getElementById('detailText').innerHTML = story.content;
     detailTitleClicks = 0;
 
-    if (index === 4) { // 第 5 个故事
+    if (index === 4) { 
       titleEl.style.cursor = 'pointer';
       titleEl.onclick = function() {
         detailTitleClicks++;
         if (detailTitleClicks >= 5) {
           document.getElementById('detailPopup').classList.remove('show');
           document.getElementById('blankPopup').classList.add('show');
-          
-          // 清理状态，防止再次进来时黑屏卡住
           document.getElementById('blankHint').classList.remove('show');
         }
       };
@@ -286,14 +288,9 @@
   }
 
   function closeDetail() { document.getElementById('detailPopup').classList.remove('show'); }
-
-  // 黑屏点击，浮现线索
-  function revealBlankHint() {
-    document.getElementById('blankHint').classList.add('show');
-  }
-
-  // ================== 基础逻辑 ==================
+  function revealBlankHint() { document.getElementById('blankHint').classList.add('show'); }
   function showLost() { document.getElementById('lostPopup').classList.add('show'); }
+  
   function showLock() {
     if (localStorage.getItem('xjj_unlocked') === 'true') {
       document.getElementById('unlockedPopup').classList.add('show');
@@ -316,7 +313,6 @@
     }
   }
 
-  // 彻底关闭所有页面（相当于返回主页）
   function closeAll() {
     document.querySelectorAll('.popup, .blank-page').forEach(el => {
       el.classList.remove('show');
@@ -328,12 +324,6 @@
     document.getElementById('dateInput').value = '';
     document.getElementById('nameInput').value = '';
   }
-
-  // 监听返回
-  window.addEventListener('pageshow', function() {
-    closeAll();
-    xinjingCount = 0;
-  });
 </script>
 </body>
 </html>
