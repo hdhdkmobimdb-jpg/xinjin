@@ -49,6 +49,8 @@
   }
   .admin-list span { border-bottom: 1px dashed #444; padding-bottom: 5px; }
   
+  /* 主界面的点击名字 */
+  #lixin { cursor: pointer; }
   #wlshi { cursor: pointer; color: #888; transition: color 0.3s; }
   #wlshi:active { color: #ff2b2b; }
 
@@ -101,7 +103,8 @@
     <div class="header">新京村村委会公告板</div>
     
     <div class="admin-list">
-      <span>村长：李永信</span>
+      <!-- 👇 给村长李永信加上了专门的重置点击事件 👇 -->
+      <span id="lixin" onclick="resetWangCount(event)">村长：李永信</span>
       <span id="wlshi" onclick="clickWang(event)">副村长：王力石</span>
     </div>
 
@@ -190,10 +193,11 @@
     list.innerHTML = html;
   }
 
-  // ================== 主界面王力石点击跳转（修复返回Bug） ==================
+  // ================== 主界面王力石点击跳转 & 防冲突 ==================
   let wangClickCount = 0;
   let wangTimer = null;
 
+  // 点击王力石
   function clickWang(event) {
     if (event) event.stopPropagation(); 
 
@@ -205,22 +209,29 @@
     }, 1500);
 
     if (wangClickCount >= 3) {
-      wangClickCount = 0; // 👈 修复点1：跳转前强制清零，防止返回后还记着次数
+      wangClickCount = 0; // 跳转前强制清零
       window.location.href = './wanglishi.html'; 
     }
   }
 
+  // 👇 新增：点击村长李永信，立刻打断王力石的计数 👇
+  function resetWangCount(event) {
+    if (event) event.stopPropagation();
+    wangClickCount = 0;
+    clearTimeout(wangTimer);
+  }
+
+  // 点击页面其他任何地方，也重置王力石的计数
   document.addEventListener('click', function() {
     wangClickCount = 0;
     clearTimeout(wangTimer);
   });
 
-  // 👇 修复点2：监听手机浏览器的“返回缓存”事件，强制重置所有状态
+  // 监听手机浏览器的“返回缓存”事件，强制重置所有状态
   window.addEventListener('pageshow', function(event) {
     wangClickCount = 0;
     detailTitleClicks = 0;
     userInput = "";
-    // 如果存在打开的弹窗，顺便关掉
     document.querySelectorAll('.popup').forEach(p => p.classList.remove('show'));
   });
 
