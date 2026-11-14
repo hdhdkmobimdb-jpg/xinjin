@@ -7,26 +7,88 @@
 <style>
   * { margin:0; padding:0; box-sizing:border-box; }
   body {
+    -webkit-user-select: none; user-select: none;
+    -webkit-tap-highlight-color: transparent;
     height: 100vh; height: 100dvh;
-    background-color: #111; color: #fff;
-    display: flex; flex-direction: column; justify-content: center; align-items: center;
-    font-family: "SimSun", serif;
+    background: #000; /* 最外层背景纯黑 */
+    display: flex; justify-content: center; align-items: center;
+    font-family: sans-serif; overflow: hidden;
   }
-  h1 { font-size: 2rem; margin-bottom: 40px; color: #ccc; letter-spacing: 2px; }
-  .btn {
-    display: block; width: 300px; padding: 15px; margin-bottom: 20px;
-    background: transparent; border: 1px solid #555; color: #aaa;
-    font-size: 1.2rem; text-align: center; cursor: pointer; transition: all 0.3s;
+
+  /* 模拟真实的手机屏幕 */
+  .phone-screen {
+    width: 95%; max-width: 800px; height: 90vh;
+    background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%); /* 深色渐变壁纸 */
+    border: 6px solid #333;
+    border-radius: 30px;
+    position: relative;
+    display: flex; flex-direction: column;
+    box-shadow: 0 0 50px rgba(0,0,0,1);
   }
-  .btn:active { border-color: #fff; color: #fff; background: rgba(255,255,255,0.1); }
-  .browser-btn { border-color: #2196F3; color: #2196F3; }
+
+  /* 手机顶部状态栏 */
+  .status-bar {
+    height: 35px; display: flex; justify-content: space-between; align-items: center;
+    padding: 0 20px; color: #ccc; font-size: 0.9rem; font-weight: bold;
+  }
+  .status-right { display: flex; gap: 5px; }
+
+  /* APP 区域 */
+  .app-grid {
+    flex: 1; padding: 20px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); /* 一排 4 个图标 */
+    gap: 20px; align-content: flex-start;
+  }
+
+  /* 单个 APP */
+  .app {
+    display: flex; flex-direction: column; align-items: center;
+    cursor: pointer; transition: transform 0.1s;
+  }
+  .app:active { transform: scale(0.85); } /* 点击缩小反馈 */
+
+  .app-icon {
+    width: 60px; height: 60px; border-radius: 15px;
+    display: flex; justify-content: center; align-items: center;
+    font-size: 1.8rem; margin-bottom: 8px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+    position: relative;
+  }
+
+  .app-name {
+    font-size: 0.8rem; color: #fff; text-shadow: 1px 1px 3px #000;
+  }
+
+  /* 各个 APP 的渐变色图标（模仿真实APP） */
+  .bg-wechat { background: linear-gradient(135deg, #07C160, #05964A); }
+  .bg-game { background: linear-gradient(135deg, #E53935, #B71C1C); }
+  .bg-pubg { background: linear-gradient(135deg, #FF9800, #E65100); }
+  .bg-contact { background: linear-gradient(135deg, #2196F3, #0D47A1); }
+  .bg-browser { background: linear-gradient(135deg, #00BCD4, #006064); }
+
+  /* 底部的小白条（iPhone 交互条） */
+  .home-bar {
+    height: 25px; display: flex; justify-content: center; align-items: center;
+  }
+  .home-bar::after {
+    content: ''; width: 120px; height: 5px; background: #666; border-radius: 10px;
+  }
+
+  /* 弹窗提示 */
   .toast {
-    color: #ff2b2b; font-size: 1rem; margin-top: 20px; opacity: 0; transition: opacity 0.3s;
+    position: absolute; bottom: 15%; left: 50%; transform: translateX(-50%);
+    background: rgba(0,0,0,0.9); color: #fff; padding: 10px 25px;
+    border-radius: 20px; font-size: 0.9rem; opacity: 0; pointer-events: none;
+    transition: opacity 0.3s ease; border: 1px solid #555; z-index: 100;
   }
   .toast.show { opacity: 1; }
+
+  /* 竖屏拦截 */
   .rotate {
     display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-    background: #000; z-index: 9999; justify-content: center; align-items: center; color: #8a0f0f;
+    background: #000; z-index: 9999; justify-content: center; align-items: center;
+    color: #8a0f0f; font-size: 1.5rem;
   }
   @media (orientation: portrait) and (max-width: 1024px) { .rotate { display: flex; } }
 </style>
@@ -35,22 +97,59 @@
 
   <div class="rotate">请将手机横屏</div>
 
-  <div>
-    <h1>桌面</h1>
-    <div class="btn" onclick="showMsg()">微信</div>
-    <div class="btn" onclick="showMsg()">通讯录</div>
-    <div class="btn" onclick="showMsg()">有畏契约</div>
-    <div class="btn" onclick="showMsg()">和平精英</div>
-    <!-- 跳转加 ./ -->
-    <div class="btn browser-btn" onclick="window.location.href='./browser.html'">打开浏览器</div>
-    <div class="toast" id="msg">该软件制作中...</div>
+  <div class="phone-screen">
+    <!-- 顶部状态栏 -->
+    <div class="status-bar">
+      <div>22:45</div>
+      <div class="status-right">
+        <span>📶</span> <span>🔋</span>
+      </div>
+    </div>
+
+    <!-- 桌面 APP 列表 -->
+    <div class="app-grid">
+      <!-- 微信 -->
+      <div class="app" onclick="showToast()">
+        <div class="app-icon bg-wechat">💬</div>
+        <div class="app-name">微信</div>
+      </div>
+      <!-- 有畏契约 -->
+      <div class="app" onclick="showToast()">
+        <div class="app-icon bg-game">🎮</div>
+        <div class="app-name">有畏契约</div>
+      </div>
+      <!-- 和平精英 -->
+      <div class="app" onclick="showToast()">
+        <div class="app-icon bg-pubg">🔫</div>
+        <div class="app-name">和平精英</div>
+      </div>
+      <!-- 通讯录 -->
+      <div class="app" onclick="showToast()">
+        <div class="app-icon bg-contact">📖</div>
+        <div class="app-name">通讯录</div>
+      </div>
+      <!-- 浏览器（跳转） -->
+      <div class="app" onclick="window.location.href='./browser.html'">
+        <div class="app-icon bg-browser">🌐</div>
+        <div class="app-name">浏览器</div>
+      </div>
+    </div>
+
+    <!-- 弹窗提示 -->
+    <div class="toast" id="toast">该软件制作中...</div>
+    
+    <!-- 底部小白条 -->
+    <div class="home-bar"></div>
   </div>
 
 <script>
-  function showMsg() {
-    const msg = document.getElementById('msg');
-    msg.classList.add('show');
-    setTimeout(() => { msg.classList.remove('show'); }, 1500);
+  function showToast() {
+    const toast = document.getElementById('toast');
+    toast.classList.add('show');
+    // 1.5秒后消失
+    setTimeout(() => {
+      toast.classList.remove('show');
+    }, 1500);
   }
 </script>
 </body>
