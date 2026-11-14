@@ -12,39 +12,33 @@
     padding: 50px 20px; line-height: 2; font-size: 1.2rem; letter-spacing: 2px;
   }
 
-  /* 公章样式排版 */
   .document {
     max-width: 700px; width: 100%; background: #e8e5db; color: #222;
     padding: 40px; position: relative; border: 1px solid #ccc;
     box-shadow: 0 10px 30px rgba(0,0,0,0.8);
   }
 
-  /* 顶部大字标题 */
   .doc-title { text-align: center; font-size: 2rem; font-weight: bold; color: #b32020; margin-bottom: 30px; border-bottom: 2px solid #b32020; padding-bottom: 15px;}
 
   .content p { margin-bottom: 20px; text-align: justify; }
 
-  /* 释怀了 三个字，初始为普通颜色 */
   #shihuai {
-    font-weight: bold;
-    font-size: 1.3rem;
+    font-weight: bold; font-size: 1.3rem;
     transition: color 2s ease, text-shadow 2s ease;
   }
 
-  /* 滑到底部3秒后，变红特效 */
   .red-text {
     color: #ff0000 !important;
     text-shadow: 0 0 10px rgba(255,0,0,0.8);
   }
 
-  /* 底部返回按钮 */
   .back-link {
-    display: block; text-align: center; margin-top: 40px; color: #666;
-    text-decoration: underline; cursor: pointer; font-size: 1rem;
+    display: block; text-align: center; margin-top: 40px; padding: 10px;
+    border: 1px solid #999; color: #333; background: #ccc;
+    text-decoration: none; cursor: pointer; font-size: 1rem; transition: all 0.3s;
   }
-  .back-link:active { color: #b32020; }
+  .back-link:active { background: #999; color: #000; }
 
-  /* 公章图案 */
   .stamp {
     position: absolute; bottom: 30px; right: 30px;
     width: 120px; height: 120px; border: 4px solid #d32f2f; border-radius: 50%;
@@ -66,29 +60,43 @@
       <p>但是没过多久他就<span id="shihuai">释怀了</span>。</p>
     </div>
 
-    <!-- 公章装饰 -->
     <div class="stamp">新京村村委会</div>
 
-    <!-- 返回按钮，点击回到公告板 -->
-    <div class="back-link" onclick="window.location.href='board.html'">【点击返回公告栏】</div>
+    <div class="back-link" onclick="window.location.href='./board.html'">【 返回公告板 】</div>
   </div>
 
 <script>
   let triggered = false;
 
-  // 监听页面滚动
+  // 监听屏幕滚动，判定“释怀了”是否出现在屏幕可视区域内
   window.addEventListener('scroll', () => {
-    // 判断是否滑动到了页面最底部
-    if (!triggered && (window.innerHeight + window.scrollY) >= document.body.offsetHeight - 20) {
+    const shihuaiElement = document.getElementById('shihuai');
+    
+    // 获取“释怀了”在屏幕上的位置
+    const rect = shihuaiElement.getBoundingClientRect();
+    
+    // 如果它的顶部小于屏幕高度，且底部大于 0，说明它已经出现在玩家视野里了
+    const isVisible = (rect.top < window.innerHeight && rect.bottom > 0);
+
+    if (isVisible && !triggered) {
       triggered = true; // 防止重复触发
       
-      // 停留 3 秒后（3000毫秒），让文字变红
+      // 玩家看到文字的3秒后，直接变红
       setTimeout(() => {
-        const shihuai = document.getElementById('shihuai');
-        shihuai.classList.add('red-text');
+        shihuaiElement.classList.add('red-text');
       }, 3000);
     }
   });
+
+  // 如果页面没滚动，文字也刚好直接显示在屏幕里，触发一次检查
+  setTimeout(() => {
+    const shihuaiElement = document.getElementById('shihuai');
+    const rect = shihuaiElement.getBoundingClientRect();
+    if (rect.top < window.innerHeight && rect.bottom > 0 && !triggered) {
+      triggered = true;
+      setTimeout(() => { shihuaiElement.classList.add('red-text'); }, 3000);
+    }
+  }, 500);
 </script>
 </body>
 </html>
