@@ -10,56 +10,39 @@
     -webkit-user-select: none; user-select: none;
     -webkit-tap-highlight-color: transparent; 
     height: 100vh; height: 100dvh;
-    
-    /* 👇 改为直接在 body 上设置全屏背景图，绝对铺满！ 👇 */
     background-image: url('3.jpg');
-    background-size: cover;      /* 铺满全屏，不留黑边 */
-    background-position: center; /* 居中显示 */
-    background-repeat: no-repeat;
-    background-color: #000; 
-    
-    display: flex; flex-direction: column;
-    justify-content: center; align-items: center;
-    font-family: "SimSun", serif;
-    overflow: hidden;
-    position: relative;
+    background-size: cover; background-position: center; background-repeat: no-repeat; background-color: #000; 
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    font-family: "SimSun", serif; overflow: hidden; position: relative;
   }
   
   .rotate {
     display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-    background: #000; z-index: 9999; justify-content: center; align-items: center;
-    color: #8a0f0f; font-size: 1.5rem;
+    background: #000; z-index: 9999; justify-content: center; align-items: center; color: #8a0f0f; font-size: 1.5rem;
   }
   @media (orientation: portrait) and (max-width: 1024px) { .rotate { display: flex; } }
 
-  /* 加一层黑色的半透明遮罩，让背景图暗下来，方便看清文字 */
+  /* 黑色遮罩 */
   body::before {
-    content: '';
-    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.5); /* 50%透明的黑色，你可以自己调 0.5 这个数字 */
-    z-index: -1;
+    content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.6); z-index: -1;
   }
 
   /* 公告板主容器 */
   .board-container {
     width: 80%; max-width: 900px;
     background: rgba(10, 10, 10, 0.85); 
-    border: 2px solid #333;
-    padding: 30px;
+    border: 2px solid #333; padding: 30px;
     box-shadow: inset 0 0 50px rgba(0,0,0,1), 0 10px 30px rgba(0,0,0,0.8);
     backdrop-filter: blur(4px);
-    position: relative;
-    opacity: 0;
-    transform: translateY(20px);
-    transition: all 2s ease; 
-    z-index: 10;
+    position: relative; opacity: 0; transform: translateY(20px);
+    transition: all 2s ease; z-index: 10;
   }
   .board-container.show { opacity: 1; transform: translateY(0); }
 
   .header {
     text-align: center; color: #ccc; font-size: 1.8rem;
-    letter-spacing: 5px; border-bottom: 2px solid #444;
-    padding-bottom: 15px; margin-bottom: 20px;
+    letter-spacing: 5px; border-bottom: 2px solid #444; padding-bottom: 15px; margin-bottom: 20px;
   }
 
   .admin-list {
@@ -67,47 +50,65 @@
     color: #888; font-size: 1.2rem; margin-bottom: 30px;
   }
   .admin-list span { border-bottom: 1px dashed #444; padding-bottom: 5px; }
+  
+  /* 王力石点击区域 */
+  #wlshi { cursor: pointer; color: #888; transition: color 0.3s; }
+  #wlshi:active { color: #ff2b2b; }
 
   .tasks { display: flex; justify-content: space-around; }
-  
   .task-btn {
     width: 45%; padding: 20px; background: rgba(26, 26, 26, 0.9);
     border: 1px solid #333; color: #aaa; font-size: 1.4rem;
-    text-align: center; letter-spacing: 4px; cursor: pointer;
-    transition: all 0.3s; outline: none;
+    text-align: center; letter-spacing: 4px; cursor: pointer; transition: all 0.3s; outline: none;
   }
-  .task-btn:hover, .task-btn:active { background: #2a0a0a; border-color: #6a0f0f; color: #ff2b2b; }
+  .task-btn:active { background: #2a0a0a; border-color: #6a0f0f; color: #ff2b2b; }
 
-  .footer-warning {
-    text-align: center; color: #444; font-size: 0.9rem;
-    margin-top: 30px; letter-spacing: 2px;
-  }
+  .footer-warning { text-align: center; color: #444; font-size: 0.9rem; margin-top: 30px; letter-spacing: 2px; }
 
-  /* ================= 剧情弹窗覆盖层 ================= */
-  .story-popup {
+  /* ================= 弹窗通用层 ================= */
+  .popup {
     position: absolute; top: 0; left: 0; width: 100%; height: 100%;
     background: rgba(0,0,0,0.95); 
-    display: flex; flex-direction: column;
-    justify-content: center; align-items: center;
-    opacity: 0; pointer-events: none; transition: opacity 1.5s ease;
-    z-index: 100;
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    opacity: 0; pointer-events: none; transition: opacity 0.8s ease; z-index: 100;
   }
-  .story-popup.show { opacity: 1; pointer-events: auto; }
-  
-  .story-text {
-    color: #ff2b2b; font-size: 1.5rem; letter-spacing: 3px;
-    text-align: center; line-height: 2; padding: 0 10%;
-    opacity: 0; transform: translateY(10px);
-    transition: all 2s ease;
-  }
-  .story-text.show { opacity: 1; transform: translateY(0); }
+  .popup.show { opacity: 1; pointer-events: auto; }
 
-  .back-btn {
-    margin-top: 40px; padding: 10px 30px; background: transparent;
-    border: 1px solid #444; color: #888; font-size: 1rem;
-    cursor: pointer; opacity: 0; transition: opacity 1s ease;
+  /* 1. 网页丢失弹窗 */
+  .lost-text { color: #888; font-size: 3rem; letter-spacing: 5px; font-family: sans-serif; }
+  .lost-sub { color: #444; font-size: 1rem; margin-top: 20px; }
+
+  /* 2. 密码锁弹窗 */
+  .lock-box {
+    background: #111; border: 1px solid #333; padding: 30px; width: 80%; max-width: 500px;
+    display: flex; flex-direction: column; align-items: center; box-shadow: 0 0 50px rgba(0,0,0,0.9);
   }
-  .back-btn.show { opacity: 1; }
+  .lock-title { color: #ff2b2b; font-size: 1.5rem; margin-bottom: 15px; font-weight: bold; }
+  .lock-desc { color: #aaa; font-size: 1rem; text-align: center; line-height: 1.8; margin-bottom: 20px; }
+  
+  .input-group { width: 100%; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
+  .input-group label { color: #888; font-size: 1.1rem; }
+  .input-group input {
+    width: 65%; padding: 10px; background: #000; border: 1px solid #444;
+    color: #fff; font-size: 1.1rem; text-align: center; outline: none;
+  }
+  .input-group input:focus { border-color: #ff2b2b; }
+
+  .submit-btn {
+    margin-top: 10px; padding: 12px 30px; background: transparent; border: 1px solid #555;
+    color: #ccc; font-size: 1.2rem; letter-spacing: 2px; cursor: pointer;
+  }
+  .submit-btn:active { background: #222; }
+
+  .error-msg { color: #ff2b2b; font-size: 1rem; margin-top: 15px; display: none; }
+
+  /* 3. 制作中弹窗 */
+  .making-text { color: #ccc; font-size: 2rem; letter-spacing: 10px; }
+
+  /* 关闭按钮 */
+  .close-popup {
+    margin-top: 30px; color: #555; font-size: 1rem; cursor: pointer; text-decoration: underline;
+  }
 </style>
 </head>
 <body>
@@ -119,51 +120,101 @@
     
     <div class="admin-list">
       <span>村长：李永信</span>
-      <span>副村长：王力石</span>
+      <!-- 👇 王力石点击三次触发 👇 -->
+      <span id="wlshi" onclick="clickWang()">副村长：王力石</span>
     </div>
 
     <div class="tasks">
-      <div class="task-btn" onclick="showStory('small')">村内小事</div>
-      <div class="task-btn" onclick="showStory('big')">村内大事</div>
+      <div class="task-btn" onclick="showLost()">村内大事</div>
+      <div class="task-btn" onclick="showLock()">村内小事</div>
     </div>
 
     <div class="footer-warning">（请村民及外来访客注意言行）</div>
   </div>
 
-  <!-- 隐藏的剧情弹窗 -->
-  <div class="story-popup" id="storyPopup">
-    <div class="story-text" id="storyText"></div>
-    <button class="back-btn" id="backBtn" onclick="closeStory()">返回公告板</button>
+  <!-- 1. 网页丢失弹窗 -->
+  <div class="popup" id="lostPopup">
+    <div class="lost-text">404 Not Found</div>
+    <div class="lost-sub">网页丢失</div>
+    <div class="close-popup" onclick="closeAll()">返回公告板</div>
+  </div>
+
+  <!-- 2. 密码锁弹窗 -->
+  <div class="popup" id="lockPopup">
+    <div class="lock-box">
+      <div class="lock-title">非村里人请止步！</div>
+      <div class="lock-desc">如果你是村里人的话，<br>就写你的生日和名字证明自己！</div>
+      
+      <div class="input-group">
+        <label>6位密码：</label>
+        <input type="text" id="dateInput" maxlength="6" placeholder="例如：990101">
+      </div>
+      <div class="input-group">
+        <label>名字：</label>
+        <input type="text" id="nameInput" placeholder="写下你的名字">
+      </div>
+
+      <button class="submit-btn" onclick="checkPassword()">我是村里人</button>
+      <div class="error-msg" id="errorMsg">密码或名字错误，非本村人禁止入内！</div>
+    </div>
+    <div class="close-popup" onclick="closeAll()">放弃进入</div>
+  </div>
+
+  <!-- 3. 制作中弹窗 -->
+  <div class="popup" id="makingPopup">
+    <div class="making-text">档案室 - 制作中...</div>
+    <div class="close-popup" onclick="closeAll()">返回</div>
   </div>
 
 <script>
   window.addEventListener('load', () => {
-    setTimeout(() => {
-      document.getElementById('boardPanel').classList.add('show');
-    }, 500); 
+    setTimeout(() => { document.getElementById('boardPanel').classList.add('show'); }, 500); 
   });
 
-  function showStory(type) {
-    const popup = document.getElementById('storyPopup');
-    const text = document.getElementById('storyText');
-    const backBtn = document.getElementById('backBtn');
-
-    popup.classList.add('show');
-    
-    if (type === 'big') {
-      text.innerHTML = "【村内大事】<br><br>档案资料已被撕毁。<br><br>地上只留下了一张纸条：<br>“李村长疯了，别信他。”";
-    } else {
-      text.innerHTML = "【村内小事】<br><br>档案室的门被生锈的铁链锁着。<br><br>门缝里似乎渗出暗红色的液体...";
+  // 点击王力石三次
+  let wangClickCount = 0;
+  function clickWang() {
+    wangClickCount++;
+    if (wangClickCount >= 3) {
+      window.location.href = 'wanglishi.html'; // 跳转到隐藏页面
     }
-
-    setTimeout(() => { text.classList.add('show'); }, 500);
-    setTimeout(() => { backBtn.classList.add('show'); }, 2000);
   }
 
-  function closeStory() {
-    document.getElementById('storyPopup').classList.remove('show');
-    document.getElementById('storyText').classList.remove('show');
-    document.getElementById('backBtn').classList.remove('show');
+  // 显示网页丢失
+  function showLost() {
+    document.getElementById('lostPopup').classList.add('show');
+  }
+
+  // 显示密码锁
+  function showLock() {
+    document.getElementById('lockPopup').classList.add('show');
+  }
+
+  // 验证密码和名字
+  function checkPassword() {
+    const date = document.getElementById('dateInput').value.trim();
+    const name = document.getElementById('nameInput').value.trim();
+    const error = document.getElementById('errorMsg');
+
+    // 密码是 960705，名字是 王力石
+    if (date === '960705' && name === '王力石') {
+      document.getElementById('lockPopup').classList.remove('show');
+      document.getElementById('makingPopup').classList.add('show');
+    } else {
+      error.style.display = 'block';
+      // 加个震动效果
+      document.getElementById('lockPopup').style.transform = 'translateX(10px)';
+      setTimeout(() => { document.getElementById('lockPopup').style.transform = 'translateX(-10px)'; }, 100);
+      setTimeout(() => { document.getElementById('lockPopup').style.transform = 'translateX(0)'; }, 200);
+    }
+  }
+
+  // 关闭所有弹窗
+  function closeAll() {
+    document.getElementById('lostPopup').classList.remove('show');
+    document.getElementById('lockPopup').classList.remove('show');
+    document.getElementById('makingPopup').classList.remove('show');
+    document.getElementById('errorMsg').style.display = 'none';
   }
 </script>
 </body>
