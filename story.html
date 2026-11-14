@@ -14,53 +14,53 @@
   
   .page {
     position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-    display: none; flex-direction: column; justify-content: flex-end; padding: 30px 8%;
-    background-size: cover; background-position: center;
+    display: none; flex-direction: column; 
+    justify-content: flex-start; /* 把排版改到了顶部 */
+    padding: 40px 8%;
+    background-size: cover; 
+    background-position: center;
   }
   .page.active { display: flex; }
   
-  /* 优化背景遮罩，让文字在任何背景下都清晰 */
+  /* 顶部加一层渐变遮罩，保证最上面的黑字也能看清 */
   .page::before {
     content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-    background: linear-gradient(to bottom, rgba(0,0,0,0) 40%, rgba(0,0,0,0.9) 100%);
+    background: linear-gradient(to bottom, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0) 60%);
     z-index: -1;
   }
-  
-  #page1 { background-image: url('./bg1.jpg'); }
-  #page2 { background-image: url('./bg2.jpg'); }
-  #page3 { background-image: url('./bg3.jpg'); }
 
-  /* 缩小一点字号并调整行高，防止溢出 */
+  /* 替换为你上传的图片名！必须带 .jpg */
+  #page1 { background-image: url('./9191.jpg'); }
+  #page2 { background-image: url('./7878.jpg'); }
+  #page3 { background-image: url('./6666.jpg'); }
+
   .text-box {
-    font-size: 1.2rem; line-height: 1.8; letter-spacing: 2px;
-    text-shadow: 2px 2px 5px #000, 0 0 10px rgba(255,255,255,0.3); 
+    font-size: 1.3rem; line-height: 1.8; letter-spacing: 2px;
+    text-shadow: 2px 2px 5px #000, 0 0 10px rgba(0,0,0,1); 
     margin-bottom: 20px; opacity: 0; transition: opacity 1.5s ease;
-    color: #e0e0e0;
+    color: #fff;
   }
   .text-box.show { opacity: 1; }
 
-  /* 独立按钮容器 */
+  /* 按钮区域放下方 */
   .btn-area {
     display: flex; justify-content: space-between; align-items: center;
-    width: 100%; opacity: 0; transition: opacity 1.5s ease;
+    width: 100%; margin-top: auto; margin-bottom: 20px;
+    opacity: 0; transition: opacity 1.5s ease;
   }
   .btn-area.show { opacity: 1; }
 
-  /* 播放按钮 */
   .play-btn {
-    padding: 10px 25px; background: transparent; border: 1px solid #555;
-    color: #aaa; font-size: 1rem; cursor: pointer; border-radius: 4px;
+    padding: 10px 25px; background: rgba(0,0,0,0.5); border: 1px solid #888;
+    color: #ccc; font-size: 1rem; cursor: pointer; border-radius: 4px;
   }
   .play-btn:active { background: #333; color: #fff; }
 
-  /* 下一页按钮 */
   .next-btn {
-    padding: 10px 30px; background: rgba(255,255,255,0.1); border: 1px solid #888;
+    padding: 10px 30px; background: rgba(255,255,255,0.2); border: 1px solid #aaa;
     color: #fff; font-size: 1rem; cursor: pointer; border-radius: 4px;
   }
-  .next-btn:active { background: #444; }
-
-  .spacer { width: 1px; }
+  .next-btn:active { background: #555; }
 
   .rotate {
     display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
@@ -74,13 +74,13 @@
 
   <div class="rotate">请将手机横屏</div>
 
-  <!-- 隐藏的音频文件，第三段如果你没录，也没关系，点播放会没声音，但不会报错 -->
+  <!-- 隐藏的音频文件 -->
   <audio id="audio1" src="./666.mp3" preload="auto"></audio>
   <audio id="audio2" src="./91.mp3" preload="auto"></audio>
   <audio id="audio3" src="./3.mp3" preload="auto"></audio>
 
-  <!-- 第一页：对应 666.mp3 -->
-  <div class="page active" id="page9191">
+  <!-- 第一页：兄弟离家 -->
+  <div class="page active" id="page1">
     <div class="text-box" id="text1">
       你叫邓凯，你的好兄弟樂乌说他要去一个地方旅行。<br><br>
       结果3天了，你发的消息一条没回。<br><br>
@@ -92,8 +92,8 @@
     </div>
   </div>
 
-  <!-- 第二页：对应 91.mp3 -->
-  <div class="page" id="page7878">
+  <!-- 第二页：沙发发呆 -->
+  <div class="page" id="page2">
     <div class="text-box" id="text2">
       你坐在家里，看着手机屏幕发呆。<br><br>
       心里总有一种说不出的不安感。
@@ -104,8 +104,8 @@
     </div>
   </div>
 
-  <!-- 第三页：对应 3.mp3（如果没有这个音频就不出声） -->
-  <div class="page" id="page6666">
+  <!-- 第三页：拿手机 -->
+  <div class="page" id="page3">
     <div class="text-box" id="text3">
       邓凯喃喃自语：<br><br>“先去浏览器看看。”
     </div>
@@ -123,7 +123,6 @@
     }, 500);
   });
 
-  // 独立播放音频
   function playAudio(audioId) {
     document.getElementById('audio1').pause();
     document.getElementById('audio2').pause();
@@ -131,10 +130,9 @@
     
     var audio = document.getElementById(audioId);
     audio.currentTime = 0;
-    audio.play().catch(e => console.log("未找到该音频或播放受限"));
+    audio.play().catch(e => console.log("音频未找到或播放失败"));
   }
 
-  // 独立翻页
   function nextPage(pageNum, textNum) {
     document.getElementById('audio1').pause();
     document.getElementById('audio2').pause();
