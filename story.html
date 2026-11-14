@@ -14,51 +14,52 @@
   
   .page {
     position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-    display: none; flex-direction: column; justify-content: flex-end; padding: 40px 10%;
+    display: none; flex-direction: column; justify-content: flex-end; padding: 30px 8%;
     background-size: cover; background-position: center;
   }
   .page.active { display: flex; }
+  
+  /* 优化背景遮罩，让文字在任何背景下都清晰 */
   .page::before {
     content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-    background: linear-gradient(to bottom, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.9) 100%);
+    background: linear-gradient(to bottom, rgba(0,0,0,0) 40%, rgba(0,0,0,0.9) 100%);
     z-index: -1;
   }
   
-  /* 换成你上传的图片名 */
   #page1 { background-image: url('./bg1.jpg'); }
   #page2 { background-image: url('./bg2.jpg'); }
   #page3 { background-image: url('./bg3.jpg'); }
 
+  /* 缩小一点字号并调整行高，防止溢出 */
   .text-box {
-    font-size: 1.4rem; line-height: 2; letter-spacing: 2px;
+    font-size: 1.2rem; line-height: 1.8; letter-spacing: 2px;
     text-shadow: 2px 2px 5px #000, 0 0 10px rgba(255,255,255,0.3); 
-    margin-bottom: 30px; opacity: 0; transition: opacity 1.5s ease;
+    margin-bottom: 20px; opacity: 0; transition: opacity 1.5s ease;
     color: #e0e0e0;
   }
   .text-box.show { opacity: 1; }
 
-  /* 底部按钮区域：分别靠左、靠右 */
+  /* 独立按钮容器 */
   .btn-area {
     display: flex; justify-content: space-between; align-items: center;
     width: 100%; opacity: 0; transition: opacity 1.5s ease;
   }
   .btn-area.show { opacity: 1; }
 
-  /* 独立的播放音频按钮 */
+  /* 播放按钮 */
   .play-btn {
-    padding: 12px 30px; background: transparent; border: 1px solid #555;
-    color: #aaa; font-size: 1.1rem; cursor: pointer; border-radius: 4px;
+    padding: 10px 25px; background: transparent; border: 1px solid #555;
+    color: #aaa; font-size: 1rem; cursor: pointer; border-radius: 4px;
   }
   .play-btn:active { background: #333; color: #fff; }
 
-  /* 独立的下一页按钮 */
+  /* 下一页按钮 */
   .next-btn {
-    padding: 12px 40px; background: rgba(255,255,255,0.1); border: 1px solid #888;
-    color: #fff; font-size: 1.1rem; cursor: pointer; border-radius: 4px;
+    padding: 10px 30px; background: rgba(255,255,255,0.1); border: 1px solid #888;
+    color: #fff; font-size: 1rem; cursor: pointer; border-radius: 4px;
   }
   .next-btn:active { background: #444; }
 
-  /* 隐藏的占位符，用来把下一页按钮挤到右边 */
   .spacer { width: 1px; }
 
   .rotate {
@@ -73,46 +74,43 @@
 
   <div class="rotate">请将手机横屏</div>
 
-  <!-- 隐藏的音频文件 -->
+  <!-- 隐藏的音频文件，第三段如果你没录，也没关系，点播放会没声音，但不会报错 -->
   <audio id="audio1" src="./666.mp3" preload="auto"></audio>
   <audio id="audio2" src="./91.mp3" preload="auto"></audio>
+  <audio id="audio3" src="./3.mp3" preload="auto"></audio>
 
-  <!-- 第一页 -->
+  <!-- 第一页：对应 666.mp3 -->
   <div class="page active" id="page1">
     <div class="text-box" id="text1">
       你叫邓凯，你的好兄弟樂乌说他要去一个地方旅行。<br><br>
-      结果3天了，你发的消息一条没回。于是你决定去所谓的新京村看看。
+      结果3天了，你发的消息一条没回。<br><br>
+      于是你决定去所谓的新京村看看。
     </div>
     <div class="btn-area" id="ctrl1">
-      <!-- 独立的播放按钮 -->
       <button class="play-btn" onclick="playAudio('audio1')">▶ 播放旁白</button>
-      <!-- 独立的下一页按钮 -->
       <button class="next-btn" onclick="nextPage(2, 2)">下一页</button>
     </div>
   </div>
 
-  <!-- 第二页 -->
+  <!-- 第二页：对应 91.mp3 -->
   <div class="page" id="page2">
     <div class="text-box" id="text2">
       你坐在家里，看着手机屏幕发呆。<br><br>
       心里总有一种说不出的不安感。
     </div>
     <div class="btn-area" id="ctrl2">
-      <!-- 这页没有音频，用空占位符把下一页挤到右边 -->
-      <div class="spacer"></div>
+      <button class="play-btn" onclick="playAudio('audio2')">▶ 播放旁白</button>
       <button class="next-btn" onclick="nextPage(3, 3)">下一页</button>
     </div>
   </div>
 
-  <!-- 第三页 -->
+  <!-- 第三页：对应 3.mp3（如果没有这个音频就不出声） -->
   <div class="page" id="page3">
     <div class="text-box" id="text3">
       邓凯喃喃自语：<br><br>“先去浏览器看看。”
     </div>
     <div class="btn-area" id="ctrl3">
-      <!-- 独立的播放按钮 -->
-      <button class="play-btn" onclick="playAudio('audio2')">▶ 播放录音</button>
-      <!-- 独立的进入手机按钮 -->
+      <button class="play-btn" onclick="playAudio('audio3')">▶ 播放旁白</button>
       <button class="next-btn" onclick="window.location.href='./phone.html'">进入手机</button>
     </div>
   </div>
@@ -125,29 +123,26 @@
     }, 500);
   });
 
-  // 独立的播放音频功能
+  // 独立播放音频
   function playAudio(audioId) {
-    // 先把所有可能在播放的音频暂停
     document.getElementById('audio1').pause();
     document.getElementById('audio2').pause();
+    document.getElementById('audio3').pause();
     
-    // 重置播放进度并播放
     var audio = document.getElementById(audioId);
     audio.currentTime = 0;
-    audio.play().catch(e => alert("播放失败，请确认音频文件已上传且名字正确！"));
+    audio.play().catch(e => console.log("未找到该音频或播放受限"));
   }
 
-  // 纯翻页功能
+  // 独立翻页
   function nextPage(pageNum, textNum) {
-    // 翻页时，把正在播放的声音关掉
     document.getElementById('audio1').pause();
     document.getElementById('audio2').pause();
+    document.getElementById('audio3').pause();
 
-    // 切换页面
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.getElementById('page' + pageNum).classList.add('active');
     
-    // 延迟显示新文字和新按钮
     setTimeout(() => { 
       document.getElementById('text' + textNum).classList.add('show'); 
       document.getElementById('ctrl' + textNum).classList.add('show');
