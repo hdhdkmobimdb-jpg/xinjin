@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>浏览器</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    height: 100vh; height: 100dvh; background: #fff; color: #333;
+    display: flex; flex-direction: column; font-family: sans-serif;
+  }
+  .rotate {
+    display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    background: #000; z-index: 9999; justify-content: center; align-items: center; color: #8a0f0f;
+  }
+  @media (orientation: portrait) and (max-width: 1024px) { .rotate { display: flex; } }
+
+  .bar { background: #f1f3f4; padding: 15px; display: flex; gap: 10px; border-bottom: 1px solid #ddd; }
+  .bar input { flex: 1; padding: 10px 20px; border-radius: 20px; border: 1px solid #ccc; outline: none; }
+  .bar button { background: #2196F3; color: #fff; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer; }
+
+  .results { padding: 20px; display: none; flex-direction: column; gap: 20px; }
+  .item { border: 1px solid #eee; padding: 15px; border-radius: 8px; display: flex; gap: 15px; cursor: pointer; }
+  .item img { width: 100px; height: 70px; border-radius: 5px; object-fit: cover; background: #ddd; }
+  .item h3 { color: #1a0dab; font-size: 1.2rem; text-decoration: underline; margin-bottom: 5px; }
+  .item p { color: #666; font-size: 0.9rem; }
+</style>
+</head>
+<body>
+
+  <div class="rotate">请将手机横屏</div>
+
+  <div class="bar">
+    <input type="text" id="keyword" placeholder="搜索内容...">
+    <button onclick="doSearch()">搜索</button>
+  </div>
+
+  <div class="results" id="results">
+    <!-- 跳转加 ./ -->
+    <div class="item" onclick="window.location.href='./game.html'">
+      <img src="./search_img.jpg" alt="新京村">
+      <div>
+        <h3>新京村 - 百科</h3>
+        <p>隐藏在群山之中的古老村落，风景优美。但近期有驴友反映...</p>
+      </div>
+    </div>
+  </div>
+
+<script>
+  function doSearch() {
+    const val = document.getElementById('keyword').value.trim();
+    if (val === '新京村') {
+      document.getElementById('results').style.display = 'flex';
+    } else {
+      alert('没有找到相关内容');
+    }
+  }
+</script>
+</body>
+</html>
