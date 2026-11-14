@@ -8,37 +8,45 @@
   * { margin:0; padding:0; box-sizing:border-box; }
   body {
     -webkit-user-select: none; user-select: none;
-    height: 100vh; height: 100dvh; background-color: #000; color: #ccc;
+    height: 100vh; height: 100dvh; background-color: #000; color: #fff;
     font-family: "SimSun", serif; overflow: hidden;
   }
+  
   .page {
     position: absolute; top: 0; left: 0; width: 100%; height: 100%;
     display: none; flex-direction: column; justify-content: flex-end; padding: 40px 10%;
     background-size: cover; background-position: center;
   }
   .page.active { display: flex; }
+  
+  /* 如果你没传图，这层遮罩也会让页面显得有质感，而不是纯黑 */
   .page::before {
     content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
     background: linear-gradient(to bottom, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.9) 100%);
     z-index: -1;
   }
+  
+  /* 背景图名字，如果你传了对应的图就会显示 */
   #page1 { background-image: url('./bg1.jpg'); }
   #page2 { background-image: url('./bg2.jpg'); }
   #page3 { background-image: url('./bg3.jpg'); }
 
   .text-box {
-    font-size: 1.3rem; line-height: 2; letter-spacing: 2px;
-    text-shadow: 1px 1px 3px #000; margin-bottom: 30px;
-    opacity: 0; transition: opacity 1.5s ease;
+    font-size: 1.4rem; line-height: 2; letter-spacing: 2px;
+    text-shadow: 2px 2px 5px #000, 0 0 10px rgba(255,255,255,0.3); 
+    margin-bottom: 30px; opacity: 0; transition: opacity 1.5s ease;
+    color: #e0e0e0;
   }
   .text-box.show { opacity: 1; }
+
   .next-btn {
-    align-self: flex-end; padding: 10px 30px; background: rgba(255,255,255,0.1);
-    border: 1px solid #666; color: #ccc; font-size: 1rem; cursor: pointer;
-    opacity: 0; transition: opacity 1.5s ease;
+    align-self: flex-end; padding: 12px 40px; background: rgba(255,255,255,0.1);
+    border: 1px solid #666; color: #fff; font-size: 1.1rem; cursor: pointer;
+    opacity: 0; transition: opacity 1.5s ease; margin-right: 20px;
   }
   .next-btn.show { opacity: 1; }
   .next-btn:active { background: #333; }
+
   .rotate {
     display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
     background: #000; z-index: 9999; justify-content: center; align-items: center;
@@ -51,7 +59,8 @@
 
   <div class="rotate">请将手机横屏</div>
 
-  <div class="page active" id="page666">
+  <!-- 第一页 -->
+  <div class="page active" id="page1">
     <div class="text-box" id="text1">
       你叫邓凯，你的好兄弟樂乌说他要去一个地方旅行。<br><br>
       结果3天了，你发的消息一条没回。于是你决定去所谓的新京村看看。
@@ -59,7 +68,8 @@
     <button class="next-btn" id="btn1" onclick="nextPage(2, 2)">下一页</button>
   </div>
 
-  <div class="page" id="page91">
+  <!-- 第二页 -->
+  <div class="page" id="page2">
     <div class="text-box" id="text2">
       你坐在家里，看着手机屏幕发呆。<br><br>
       心里总有一种说不出的不安感。
@@ -67,42 +77,42 @@
     <button class="next-btn" id="btn2" onclick="nextPage(3, 3)">下一页</button>
   </div>
 
-  <div class="page" id="page78">
+  <!-- 第三页 -->
+  <div class="page" id="page3">
     <div class="text-box" id="text3">
       邓凯喃喃自语：<br><br>“先去浏览器看看。”
     </div>
-    <!-- 跳转加 ./ -->
     <button class="next-btn" id="btn3" onclick="window.location.href='./phone.html'">进入手机</button>
   </div>
 
 <script>
+  // 页面加载后的初始触发
   window.addEventListener('load', () => {
+    // 0.5秒后文字显现
     setTimeout(() => { 
       document.getElementById('text1').classList.add('show'); 
-      playAudio('./voice1.mp3');
     }, 500);
-    setTimeout(() => { document.getElementById('btn1').classList.add('show'); }, 2000);
+    // 1.5秒后按钮显现
+    setTimeout(() => { 
+      document.getElementById('btn1').classList.add('show'); 
+    }, 1500);
   });
 
+  // 点击下一页的逻辑
   function nextPage(pageNum, textNum) {
-    stopAudio();
+    // 1. 隐藏所有页
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    // 2. 激活当前页
     document.getElementById('page' + pageNum).classList.add('active');
+    
+    // 3. 延迟让文字浮现
     setTimeout(() => { 
       document.getElementById('text' + textNum).classList.add('show'); 
-      if (textNum === 2) playAudio('./voice2.mp3');
-      if (textNum === 3) playAudio('./voice3.mp3');
     }, 300);
-    setTimeout(() => { document.getElementById('btn' + textNum).classList.add('show'); }, 1500);
-  }
-
-  let currentAudio = null;
-  function playAudio(audioFile) {
-    currentAudio = new Audio(audioFile);
-    currentAudio.play().catch(e => console.log("需点击才能播放"));
-  }
-  function stopAudio() {
-    if (currentAudio) { currentAudio.pause(); currentAudio = null; }
+    // 4. 延迟让按钮浮现
+    setTimeout(() => { 
+      document.getElementById('btn' + textNum).classList.add('show'); 
+    }, 1500);
   }
 </script>
 </body>
