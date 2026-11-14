@@ -3,93 +3,54 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>手机桌面</title>
+<title>邓凯的手机</title>
 <style>
   * { margin:0; padding:0; box-sizing:border-box; }
   body {
-    -webkit-user-select: none; user-select: none;
     height: 100vh; height: 100dvh;
-    background: #1a1a1a; color: #fff;
-    font-family: sans-serif; overflow: hidden;
-    display: flex; justify-content: center; align-items: center;
+    background-color: #111; color: #fff;
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    font-family: "SimSun", serif;
   }
+  h1 { font-size: 2rem; margin-bottom: 40px; color: #ccc; letter-spacing: 2px; }
+  .btn {
+    display: block; width: 300px; padding: 15px; margin-bottom: 20px;
+    background: transparent; border: 1px solid #555; color: #aaa;
+    font-size: 1.2rem; text-align: center; cursor: pointer; transition: all 0.3s;
+  }
+  .btn:active { border-color: #fff; color: #fff; background: rgba(255,255,255,0.1); }
+  .browser-btn { border-color: #2196F3; color: #2196F3; }
+  .toast {
+    color: #ff2b2b; font-size: 1rem; margin-top: 20px; opacity: 0; transition: opacity 0.3s;
+  }
+  .toast.show { opacity: 1; }
   .rotate {
     display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
     background: #000; z-index: 9999; justify-content: center; align-items: center; color: #8a0f0f;
   }
   @media (orientation: portrait) and (max-width: 1024px) { .rotate { display: flex; } }
-
-  /* 模拟手机屏幕 */
-  .phone-screen {
-    width: 90%; max-width: 800px; height: 80vh;
-    background: url('bg2.jpg') center/cover; /* 可以用张好看的壁纸 */
-    border-radius: 20px; border: 4px solid #333;
-    padding: 30px; display: flex; flex-wrap: wrap; gap: 20px; align-content: flex-start;
-    box-shadow: 0 0 30px rgba(0,0,0,0.8);
-  }
-
-  .app {
-    width: 80px; height: 80px; border-radius: 15px;
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    cursor: pointer; font-size: 0.8rem; text-shadow: 1px 1px 2px #000;
-    transition: transform 0.2s;
-  }
-  .app:active { transform: scale(0.9); }
-  .app-icon {
-    width: 50px; height: 50px; border-radius: 12px; margin-bottom: 5px;
-    display: flex; justify-content: center; align-items: center; font-size: 1.5rem;
-  }
-
-  .app-browser .app-icon { background: #2196F3; }
-  .app-wechat .app-icon { background: #4CAF50; }
-  .app-game .app-icon { background: #F44336; }
-  .app-contact .app-icon { background: #FF9800; }
-  .app-pubg .app-icon { background: #607D8B; }
-
-  /* 制作中提示 */
-  .toast {
-    position: fixed; bottom: 20%; left: 50%; transform: translateX(-50%);
-    background: rgba(0,0,0,0.8); color: #fff; padding: 10px 20px;
-    border-radius: 20px; font-size: 1rem; opacity: 0; pointer-events: none;
-    transition: opacity 0.3s;
-  }
-  .toast.show { opacity: 1; }
 </style>
 </head>
 <body>
 
   <div class="rotate">请将手机横屏</div>
 
-  <div class="phone-screen">
-    <!-- 微信 -->
-    <div class="app app-wechat" onclick="showToast()">
-      <div class="app-icon">💬</div>微信
-    </div>
-    <!-- 有畏契约 -->
-    <div class="app app-game" onclick="showToast()">
-      <div class="app-icon">🎮</div>有畏契约
-    </div>
-    <!-- 和平精英 -->
-    <div class="app app-pubg" onclick="showToast()">
-      <div class="app-icon">🔫</div>和平精英
-    </div>
-    <!-- 通讯录 -->
-    <div class="app app-contact" onclick="showToast()">
-      <div class="app-icon">📖</div>通讯录
-    </div>
-    <!-- 浏览器 -->
-    <div class="app app-browser" onclick="window.location.href='browser.html'">
-      <div class="app-icon">🌐</div>浏览器
-    </div>
+  <div>
+    <h1>桌面</h1>
+    <div class="btn" onclick="showMsg()">微信</div>
+    <div class="btn" onclick="showMsg()">通讯录</div>
+    <div class="btn" onclick="showMsg()">有畏契约</div>
+    <div class="btn" onclick="showMsg()">和平精英</div>
+    <!-- 跳转加 ./ -->
+    <div class="btn browser-btn" onclick="window.location.href='./browser.html'">打开浏览器</div>
+    <div class="toast" id="msg">该软件制作中...</div>
   </div>
 
-  <div class="toast" id="toast">该软件制作中...</div>
-
 <script>
-  function showToast() {
-    const toast = document.getElementById('toast');
-    toast.classList.add('show');
-    setTimeout(() => { toast.classList.remove('show'); }, 1500);
+  function showMsg() {
+    const msg = document.getElementById('msg');
+    msg.classList.add('show');
+    setTimeout(() => { msg.classList.remove('show'); }, 1500);
   }
 </script>
 </body>
