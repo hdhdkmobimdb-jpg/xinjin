@@ -14,25 +14,22 @@
   
   .page {
     position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-    display: none; flex-direction: column; 
-    justify-content: flex-start; /* 把排版改到了顶部 */
-    padding: 40px 8%;
-    background-size: cover; 
-    background-position: center;
+    display: none; flex-direction: column; justify-content: flex-start; 
+    padding: 40px 8%; background-size: cover; background-position: center;
   }
   .page.active { display: flex; }
   
-  /* 顶部加一层渐变遮罩，保证最上面的黑字也能看清 */
+  /* 顶部渐变遮罩，保证文字清晰 */
   .page::before {
     content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
     background: linear-gradient(to bottom, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0) 60%);
     z-index: -1;
   }
 
-  /* 替换为你上传的图片名！必须带 .jpg */
-  #page1 { background-image: url('./9191.jpg'); }
-  #page2 { background-image: url('./7878.jpg'); }
-  #page3 { background-image: url('./6666.jpg'); }
+  /* 已准确替换为你提供的 png 文件名 */
+  #page1 { background-image: url('./9191.png'); }
+  #page2 { background-image: url('./7878.png'); }
+  #page3 { background-image: url('./6666.png'); }
 
   .text-box {
     font-size: 1.3rem; line-height: 1.8; letter-spacing: 2px;
@@ -42,7 +39,6 @@
   }
   .text-box.show { opacity: 1; }
 
-  /* 按钮区域放下方 */
   .btn-area {
     display: flex; justify-content: space-between; align-items: center;
     width: 100%; margin-top: auto; margin-bottom: 20px;
@@ -74,12 +70,12 @@
 
   <div class="rotate">请将手机横屏</div>
 
-  <!-- 隐藏的音频文件 -->
+  <!-- 隐藏的音频 -->
   <audio id="audio1" src="./666.mp3" preload="auto"></audio>
   <audio id="audio2" src="./91.mp3" preload="auto"></audio>
   <audio id="audio3" src="./3.mp3" preload="auto"></audio>
 
-  <!-- 第一页：兄弟离家 -->
+  <!-- 第一页 -->
   <div class="page active" id="page1">
     <div class="text-box" id="text1">
       你叫邓凯，你的好兄弟樂乌说他要去一个地方旅行。<br><br>
@@ -92,7 +88,7 @@
     </div>
   </div>
 
-  <!-- 第二页：沙发发呆 -->
+  <!-- 第二页 -->
   <div class="page" id="page2">
     <div class="text-box" id="text2">
       你坐在家里，看着手机屏幕发呆。<br><br>
@@ -104,7 +100,7 @@
     </div>
   </div>
 
-  <!-- 第三页：拿手机 -->
+  <!-- 第三页 -->
   <div class="page" id="page3">
     <div class="text-box" id="text3">
       邓凯喃喃自语：<br><br>“先去浏览器看看。”
@@ -130,7 +126,7 @@
     
     var audio = document.getElementById(audioId);
     audio.currentTime = 0;
-    audio.play().catch(e => console.log("音频未找到或播放失败"));
+    audio.play().catch(e => console.log("音频未找到"));
   }
 
   function nextPage(pageNum, textNum) {
