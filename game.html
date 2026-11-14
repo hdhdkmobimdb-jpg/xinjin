@@ -17,7 +17,7 @@
     position: relative;
   }
   
-  /* ================= 手机竖屏拦截 ================= */
+  /* 手机竖屏拦截 */
   .rotate {
     display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
     background: #000; z-index: 9999; justify-content: center; align-items: center;
@@ -34,13 +34,22 @@
   }
   .title { color: #ff2b2b; font-size: 2rem; letter-spacing: 6px; margin-bottom: 20px; text-shadow: 0 0 15px rgba(255,0,0,0.5); }
   .desc { color: #888; font-size: 1.1rem; line-height: 2; letter-spacing: 2px; margin-bottom: 40px; text-align: center; }
+  
+  /* 关键：初始状态 pointer-events: none，禁止点击 */
   .enter-btn {
     padding: 15px 50px; background: transparent; border: 1px solid #555;
     color: #aaa; font-size: 1.2rem; letter-spacing: 4px; cursor: pointer;
-    transition: all 0.5s; opacity: 0; animation: fadeIn 2s 1.5s forwards;
+    opacity: 0; pointer-events: none; 
+    animation: fadeInBtn 2s 1.5s forwards;
   }
   .enter-btn:active { border-color: #ff2b2b; color: #ff2b2b; }
-  @keyframes fadeIn { to { opacity: 1; } }
+  
+  /* 动画结束后，自动开启点击判定 */
+  @keyframes fadeInBtn {
+    0% { opacity: 0; pointer-events: none; }
+    99% { opacity: 1; pointer-events: none; }
+    100% { opacity: 1; pointer-events: auto; } 
+  }
 
   /* ================= 页面2：风景 ================= */
   .page2 {
@@ -65,11 +74,13 @@
   }
   .welcome-text.show { opacity: 1; transform: translateY(0); filter: blur(0); }
   
+  /* 关键：开始探索按钮也用 pointer-events 防误触 */
   .start-btn {
     margin-top: 20px; padding: 12px 40px; background: rgba(0,0,0,0.6); 
     border: 1px solid #555; color: #aaa; font-size: 1.2rem; letter-spacing: 4px;
-    cursor: pointer; opacity: 0; transition: all 0.5s;
+    cursor: pointer; opacity: 0; pointer-events: none; transition: all 0.5s;
   }
+  /* 当 JS 加上 .show 后，才允许点击 */
   .start-btn.show { opacity: 1; pointer-events: auto; }
   .start-btn:active { border-color: #ff2b2b; color: #ff2b2b; }
 
@@ -95,10 +106,7 @@
 
   <!-- 第二页 -->
   <div class="page2" id="page2">
-    
-    <!-- 👇 这里替换成了 2.jpg，只要图在仓库里就能完美加载 👇 -->
     <img class="bg-img" src="2.jpg">
-    
     <div class="welcome-text" id="welcomeText">欢迎来到新京村</div>
     <button class="start-btn" id="startBtn" onclick="goToBoard()">开始探索</button>
   </div>
@@ -116,14 +124,13 @@
         document.getElementById('welcomeText').classList.add('show');
       }, 2000);
       
-      // 3秒后按钮浮现
+      // 3秒后按钮彻底浮现并允许点击
       setTimeout(() => {
         document.getElementById('startBtn').classList.add('show');
       }, 3000);
     }, 1000);
   }
 
-  // 真正的网页跳转
   function goToBoard() {
     window.location.href = 'board.html';
   }
