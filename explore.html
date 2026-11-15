@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>探索 - 新京村</title>
+<title>新京村 - 探索</title>
 <style>
   * { margin:0; padding:0; box-sizing:border-box; }
   body {
@@ -14,114 +14,96 @@
     display: flex; justify-content: center; align-items: center;
   }
 
-  /* 文字容器 */
+  /* 开场文字 */
   .intro-text {
     font-size: 2rem; letter-spacing: 5px; color: #ddd;
     text-align: center; position: absolute;
-    transition: opacity 2s ease;
+    opacity: 0; transition: opacity 2s ease;
     z-index: 10;
   }
+  .intro-text.show { opacity: 1; }
 
-  /* 探索区域（文字结束后显示） */
-  .explore-area {
-    display: none; width: 100%; height: 100%;
-    position: relative; opacity: 0; transition: opacity 2s ease;
+  /* 结局黑屏 */
+  .ending-screen {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background-color: #000; display: none; 
+    flex-direction: column; justify-content: center; align-items: center;
+    z-index: 100; opacity: 0; transition: opacity 2s ease;
   }
-  .explore-area.show { display: block; opacity: 1; }
-
-  /* 四个方向的箭头 */
-  .arrow {
-    position: absolute; color: rgba(255,255,255,0.2);
-    font-size: 4rem; cursor: pointer; transition: color 0.3s, transform 0.2s;
-    z-index: 20;
-  }
-  .arrow:active { color: #ff2b2b; transform: scale(0.8); }
-
-  .arrow.up { top: 20px; left: 50%; transform: translateX(-50%); }
-  .arrow.down { bottom: 20px; left: 50%; transform: translateX(-50%); }
-  .arrow.left { left: 30px; top: 50%; transform: translateY(-50%); }
-  .arrow.right { right: 30px; top: 50%; transform: translateY(-50%); }
-
-  /* 中间的场景占位图 */
-  .scene-img {
-    width: 100%; height: 100%; object-fit: contain;
-    background: #111; display: none;
-  }
+  .ending-screen.show { display: flex; opacity: 1; }
+  
+  .ending-title { color: #ff2b2b; font-size: 3rem; font-weight: bold; margin-bottom: 30px; letter-spacing: 10px; }
+  .ending-desc { color: #888; font-size: 1.2rem; line-height: 2; letter-spacing: 2px; text-align: center; }
 </style>
 </head>
 <body>
 
-  <!-- 开场打字特效 -->
   <div class="intro-text" id="introText"></div>
 
-  <!-- 探索区域 -->
-  <div class="explore-area" id="exploreArea">
-    <!-- 场景图（暂用纯黑，以后可以换成你画的场景图） -->
-    <div class="scene-img"></div>
-
-    <!-- 上北下南左西右东 -->
-    <div class="arrow up" onclick="go('上')">▲</div>
-    <div class="arrow down" onclick="go('下')">▼</div>
-    <div class="arrow left" onclick="go('左')">◀</div>
-    <div class="arrow right" onclick="go('右')">▶</div>
+  <!-- 结局一：失踪 -->
+  <div class="ending-screen" id="badEnding">
+    <div class="ending-title">结局一：“失踪”</div>
+    <div class="ending-desc">
+      坏结局。<br><br>
+      你的好兄弟彻底消失了，没人知道他在哪里。
+    </div>
   </div>
 
 <script>
-  const textToType = "三天后，到了新京村。";
+  let step = 0;
   const introEl = document.getElementById('introText');
-  let charIndex = 0;
 
-  // --- 合成打字音效（无需外部MP3） ---
+  // 模拟打字音效
   function playTypingSound() {
     const AudioContext = window.AudioContext || window.webkitAudioContext;
     if (!AudioContext) return;
     const ctx = new AudioContext();
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
-    
-    // 调整参数让它听起来像打字机/敲击声
     osc.type = 'square';
     osc.frequency.setValueAtTime(800, ctx.currentTime); 
     osc.frequency.exponentialRampToValueAtTime(300, ctx.currentTime + 0.05);
-    
     gain.gain.setValueAtTime(0.1, ctx.currentTime);
     gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.05);
-    
     osc.connect(gain);
     gain.connect(ctx.destination);
     osc.start();
     osc.stop(ctx.currentTime + 0.05);
   }
 
-  // 打字机效果逻辑
-  function typeWriter() {
-    if (charIndex < textToType.length) {
-      introEl.innerHTML += textToType.charAt(charIndex);
-      playTypingSound(); // 每写一个字，响一下
-      charIndex++;
-      setTimeout(typeWriter, 300); // 300毫秒打一个字，缓慢浮现
-    } else {
-      // 打完字了，等2秒进入探索模式
-      setTimeout(() => {
-        introEl.style.opacity = '0';
-        setTimeout(() => {
-          introEl.style.display = 'none';
-          document.getElementById('exploreArea').classList.add('show');
-        }, 2000);
-      }, 2000);
+  // 打字效果
+  function typeWriter(text, callback) {
+    introEl.innerHTML = '';
+    introEl.classList.add('show');
+    let i = 0;
+    function type() {
+      if (i < text.length) {
+        introEl.innerHTML += text.charAt(i);
+        playTypingSound();
+        i++;
+        setTimeout(type, 200); // 打两个字
+      } else {
+        if (callback) callback();
+      }
     }
+    type();
   }
 
-  // 页面加载稍微等1秒开始打字
-  setTimeout(typeWriter, 1000);
-
-  // 箭头点击事件
-  function go(direction) {
-    // 这里以后用来写地图移动逻辑，现在先弹个提示
-    console.log("去往：" + direction);
-    // 如果你想测试，可以暂时取消下面这行的注释
-    // alert("你向" + direction + "走去...");
-  }
+  // 启动流程
+  window.addEventListener('load', () => {
+    // 前3秒显示“三天后”
+    typeWriter("三天后，到了新京村。", () => {
+      setTimeout(() => {
+        // 主角说话
+        typeWriter("为什么这里是个废区？", () => {
+          // 说话后3秒触发结局
+          setTimeout(() => {
+            document.getElementById('badEnding').classList.add('show');
+          }, 3000);
+        });
+      }, 2000);
+    });
+  });
 </script>
 </body>
 </html>
