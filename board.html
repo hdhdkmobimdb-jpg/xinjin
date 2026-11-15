@@ -38,16 +38,17 @@
   }
   .board-container.show { opacity: 1; transform: translateY(0); }
   
-  /* 权限剥夺后的灰暗状态 */
+  /* 封印状态：变灰变暗，禁止点击 */
   .board-container.locked { filter: grayscale(1) contrast(0.5) brightness(0.3); pointer-events: none; }
+  /* 只有“新京”可以在封印状态被点击 */
+  #xinjing { cursor: pointer; pointer-events: auto; } 
 
   .header {
     text-align: center; color: #ccc; font-size: 1.8rem;
     letter-spacing: 5px; border-bottom: 2px solid #444; padding-bottom: 15px; margin-bottom: 20px;
   }
   
-  #xinjing { cursor: pointer; } /* 让新京可以点 */
-  #lixin, #wlshi { cursor: pointer; transition: color 0.2s; }
+  #lixin, #wlshi { cursor: pointer; transition: color 0.2s; pointer-events: auto; }
   #lixin:active { color: #fff; }
   #wlshi:active { color: #ff2b2b; }
 
@@ -62,6 +63,7 @@
     width: 45%; padding: 20px; background: rgba(26, 26, 26, 0.9);
     border: 1px solid #333; color: #aaa; font-size: 1.4rem;
     text-align: center; letter-spacing: 4px; cursor: pointer; transition: all 0.3s; outline: none;
+    pointer-events: auto;
   }
   .task-btn:active { background: #2a0a0a; border-color: #6a0f0f; color: #ff2b2b; }
 
@@ -120,7 +122,6 @@
     transform-origin: center;
   }
   
-  /* 变红+扭曲特效 */
   .sutra-text.twisted {
     color: #ff0000;
     transform: scale(1.1) rotate(2deg) skewX(5deg);
@@ -132,7 +133,6 @@
 
   <div class="rotate">请将手机横屏</div>
 
-  <!-- 主界面 -->
   <div class="board-container" id="boardPanel">
     <div class="header"><span id="xinjing" onclick="clickXinJing(event)">新京</span>村村委会公告板</div>
     
@@ -149,14 +149,12 @@
     <div class="footer-warning">（请村民及外来访客注意言行）</div>
   </div>
 
-  <!-- 网页丢失 -->
   <div class="popup" id="lostPopup">
     <div class="lost-text">404 Not Found</div>
     <div class="lost-sub">网页丢失</div>
     <div class="close-popup" onclick="closeAll()">【 返回公告板 】</div>
   </div>
 
-  <!-- 小事密码锁 -->
   <div class="popup" id="lockPopup">
     <div class="lock-box">
       <div style="color: #ff2b2b; font-size: 1.5rem; margin-bottom: 20px; font-weight: bold;">非村里人请止步！</div>
@@ -174,13 +172,11 @@
     <div class="close-popup" onclick="closeAll()">【 放弃进入 】</div>
   </div>
 
-  <!-- 档案室 -->
   <div class="popup" id="unlockedPopup" style="background: #e0e0e0;">
     <div class="file-scroll-area" id="fileList"></div>
     <div class="close-popup" onclick="closeAll()" style="background: #000; color: #fff; border-color: #333;">【 返回公告板 】</div>
   </div>
 
-  <!-- 详情弹窗 -->
   <div class="popup" id="detailPopup">
     <div class="detail-box">
       <div class="detail-title" id="detailTitle"></div>
@@ -189,7 +185,6 @@
     <div class="close-popup" onclick="closeDetail()" style="background: #000; color: #fff; border-color: #333;">【 返回小事页面 】</div>
   </div>
 
-  <!-- 纯黑空白页 -->
   <div class="blank-page" id="blankPopup" onclick="revealBlankHint()">
     <div class="blank-hint-text" id="blankHint">
       去看小事前五的题目<br>
@@ -198,7 +193,6 @@
     </div>
   </div>
 
-  <!-- 终极密码锁 -->
   <div class="popup" id="masterLockPopup" style="z-index: 300;">
     <div class="lock-box" style="border-color: #b32020;">
       <div style="color: #ff2b2b; font-size: 1.5rem; margin-bottom: 20px; font-weight: bold;">机密档案柜</div>
@@ -212,7 +206,6 @@
     <div class="close-popup" onclick="closeAll()" style="background: #000; color: #fff; border-color: #333;">【 返回 】</div>
   </div>
 
-  <!-- 经文恐怖页 -->
   <div class="sutra-screen" id="sutraScreen">
     <div class="sutra-text" id="sutraText">
       佛又曰：楞夜蒙萨度那地室啰诃娑南卢唎嚧羯参苏嚧哆耶曳驮烁呼南罚卢摩怛写佛曳佛穆沙伽娑啰驮怛驮无皤咩地曳帝栗醯墀舍输曳
@@ -220,7 +213,38 @@
   </div>
 
 <script>
-  const stories = [
+  // 网页加载时，立刻检查是否有封印存档
+  window.addEventListener('load', () => {
+    if (localStorage.getItem('xjj_locked') === 'true') {
+      applyLock();
+    }
+    
+    setTimeout(() => { document.getElementById('boardPanel').classList.add('show'); }, 500); 
+    renderFiles(); 
+  });
+
+  // 核心：封印机制
+  function applyLock() {
+    document.getElementById('boardPanel').classList.add('locked');
+    document.getElementById('boardPanel').style.opacity = '1'; // 确保它显示
+    
+    // 核心拦截：拦截除了“新京”之外的所有点击
+    const elementsToBlock = document.querySelectorAll('.admin-list span, .task-btn, .footer-warning');
+    elementsToBlock.forEach(el => {
+      el.addEventListener('click', function(e) {
+        e.stopPropagation();
+        alert("你没有这个权限。");
+      });
+    });
+  }
+
+  // 解除封印（留作后门测试用，你可以不管）
+  function unlock() {
+    localStorage.removeItem('xjj_locked');
+    location.reload();
+  }
+
+  const stories = [ /* ... 保持你的7个故事完整 ... */
     { title: "20号12月摊位线歪了！赵大婶和周叔吵起来", content: "<p>赵大婶，原名赵桂芬，57岁，菜市场豆腐摊贩；周叔，原名周德海，61岁，修鞋匠。</p><p>一天赵大婶在20号12月摊位卖豆腐，周叔非说她豆腐箱压过了修鞋摊的线。赵大婶不服：“我在这20号12月摊位卖了12年豆腐，豆腐都没喊冤！”周叔拿卷尺一量，说压了三指宽，赵大婶说那线本来就是歪的。两人越吵越凶，围观的人里三层外三层。</p><p>最后副村长来了，一查，原来那粉笔线是去年划的，被鸡蹭歪了。调解结果：赵大婶送周叔两块豆腐，周叔给赵大婶免费钉一副鞋掌。</p>" },
     { title: "10月10号24个蛋托送货单少给钱！刘嫂和钱大爷争执", content: "<p>刘嫂，原名刘春梅，34岁，卖鸡蛋；钱大爷，原名钱有福，70岁，收废品。</p><p>刘嫂拿着一张10月10号24个蛋托的送货单找钱大爷，说他少给了10块钱。钱大爷瞪眼：“我按10月10号单结的，咋会错？”刘嫂说单上明明写着24个蛋托，钱大爷说那是10月10日*编号24*，不是24个蛋托。两人吵得鸡蛋筐都晃了。</p><p>副村长赶来，翻过单子一看，背面写着“蛋托10个，碎2个，实收8个”。最后钱大爷补了3块，刘嫂送他两个鸡蛋，嘴里还嘟囔：“下回单子写清楚，别拿数字绕人！”</p>" },
     { title: "12月19号62号取件码拿错包！陈叔和吴婶吵翻", content: "<p>陈叔，原名陈建国，45岁，小卖部兼快递代收；吴婶，原名吴小丽，39岁，裁缝。</p><p>吴婶拿着12月19号62号取件码来取包裹，陈叔翻了半天说已经被取走了。吴婶急得脸红：“里面是客人等着改的裤子！”陈叔说：“你拿的是12月19号63，不是62。”两人一个说贴反了，一个说没贴反，吵得货架都震。</p><p>后来副村长来了，定睛一看，果然，是陈叔把6-2和6-3的标签贴反了，包裹压在最底下。陈叔赔礼，吴婶免了他一次改裤脚钱，围观的人笑得直拍腿。</p>" },
@@ -229,11 +253,6 @@
     { title: "3斤2两的鱼被谁叼走了？杨嫂和冯爷吵起来", content: "<p>杨嫂，原名杨美芹，29岁，卖鱼；冯爷，原名冯老栓，72岁，看车棚。</p><p>杨嫂说冯爷车棚里的猫叼走了她3斤2两的鱼，冯爷说：“那猫20分钟前还在12号车棚睡觉，咋可能叼鱼？”两人吵到车棚门口，围观的人把路都堵了。</p><p>后来有人看见隔壁大黄狗嘴角有鱼鳞，才知道猫背了锅。副村长刘成调解：冯爷赔2两鱼钱，杨嫂送猫一条小鱼。冯爷叹气：“这猫看车棚没挣着钱，倒混上鱼了。”</p>" },
     { title: "5块钱和2两黄瓜丝！许叔和柳婶争执", content: "<p>许叔，原名许大勇，41岁，快递代收；柳婶，原名柳小芳，36岁，卖凉皮。</p><p>柳婶说许叔取快递时碰翻了她17号桌的凉皮，少给了5块钱；许叔说只碰掉了2两黄瓜丝，凭啥赔整碗。两人一个说“汤都洒了”，一个说“黄瓜丝还能捡”，吵得凉皮摊前围了一圈人。</p><p>副村长刘成调出小卖部门口监控，发现是风把遮阳布刮过来碰翻的。最后许叔补5块，柳婶给他多加2两面，许叔端着碗说：“这风可真会挑时候。”</p>" }
   ];
-
-  window.addEventListener('load', () => {
-    setTimeout(() => { document.getElementById('boardPanel').classList.add('show'); }, 500); 
-    renderFiles(); 
-  });
 
   function renderFiles() {
     const list = document.getElementById('fileList');
@@ -244,15 +263,13 @@
     list.innerHTML = html;
   }
 
-  // ================== 核心修复：主界面点击 ==================
   let wangClickCount = 0;
-
   function clickWang(event) {
     if (event) event.stopPropagation(); 
     wangClickCount++;
     if (wangClickCount >= 3) {
       wangClickCount = 0; 
-      window.location.href = './wanglishi.html'; // 确保你的文件名是纯英文！
+      window.location.href = './wanglishi.html'; 
     }
   }
 
@@ -261,10 +278,17 @@
     wangClickCount = 0;
   }
 
-  // 连点“新京”10次
   let xinjingCount = 0;
   function clickXinJing(event) {
     if (event) event.stopPropagation();
+    
+    // 如果被封印了，点击新京直接跳转去探索页面
+    if (localStorage.getItem('xjj_locked') === 'true') {
+      window.location.href = './explore.html';
+      return;
+    }
+
+    // 正常情况下的连点10次逻辑
     xinjingCount++;
     if (xinjingCount >= 10) {
       xinjingCount = 0; 
@@ -272,31 +296,27 @@
     }
   }
 
-  // ================== 解密与剥夺权限逻辑 ==================
-  let isLocked = false;
-
   function checkMasterPassword() {
-    if (isLocked) return;
     const val = document.getElementById('masterInput').value.trim();
     const err = document.getElementById('masterError');
     
     if (val === '50705') {
       document.getElementById('masterLockPopup').classList.remove('show');
       
-      // 显示经文
       const sutraScreen = document.getElementById('sutraScreen');
       const sutraText = document.getElementById('sutraText');
       sutraScreen.classList.add('show');
       
-      // 3秒后扭曲变红
       setTimeout(() => {
         sutraText.classList.add('twisted');
       }, 3000);
 
-      // 再过3秒（总共6秒），踢回公告板并剥夺权限
       setTimeout(() => {
         sutraScreen.classList.remove('show');
-        lockPermissions();
+        // 写入永久封印存档
+        localStorage.setItem('xjj_locked', 'true');
+        // 重新加载页面，让封印生效
+        location.reload();
       }, 6000);
 
     } else {
@@ -304,26 +324,6 @@
     }
   }
 
-  function lockPermissions() {
-    isLocked = true;
-    // 让主界面变灰变暗
-    document.getElementById('boardPanel').classList.add('locked');
-    
-    // 劫持全局点击事件
-    document.body.addEventListener('click', function(e) {
-      if (isLocked) {
-        alert("你没有这个权限。");
-      }
-    }, true); // 使用捕获阶段拦截所有点击
-
-    // 专属跳转：点击【新京】两个字时，进入探索
-    document.getElementById('xinjing').onclick = function(e) {
-      e.stopPropagation();
-      window.location.href = './explore.html';
-    };
-  }
-
-  // ================== 故事详情与黑屏解密 ==================
   let detailTitleClicks = 0; 
   function openStory(index) {
     const story = stories[index];
