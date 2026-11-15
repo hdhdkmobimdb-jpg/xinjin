@@ -148,7 +148,7 @@
 
     <div class="footer-warning">（请村民及外来访客注意言行）</div>
   </div>
-
+ <div id="secret-bg-trigger" style="position:absolute; left:0; top:0; width:15%; height:100%; z-index: 50; cursor:pointer;" onclick="triggerHell()"></div>
   <div class="popup" id="lostPopup">
     <div class="lost-text">404 Not Found</div>
     <div class="lost-sub">网页丢失</div>
@@ -386,6 +386,13 @@
     document.getElementById('dateInput').value = '';
     document.getElementById('nameInput').value = '';
   }
+ let secretClickCount = 0;
+function triggerHell() {
+  secretClickCount++;
+  if (secretClickCount >= 20) {
+    window.location.href = './ending2.html';
+  }
+}
 </script>
 </body>
 </html>
