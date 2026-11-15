@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>新京村 - 地狱</title>
+<title>新京村 - 结局二</title>
 <style>
   * { margin:0; padding:0; box-sizing:border-box; }
   body {
@@ -14,57 +14,86 @@
     display: flex; justify-content: center; align-items: center;
   }
 
-  /* 地狱背景图 */
+  /* 背景图（如果地狱图没出来，说明没网或者图坏了，底下是深红底色） */
   .hell-bg {
     position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-    background-image: url('https://images.unsplash.com/photo-1505682634904-d7c8d95cdc50?q=80&w=1200&auto=format&fit=crop'); /* 用一张红色地狱网图代替，你可以换成你传的 hell.jpg */
+    background-image: url('https://hdhdkmobimdb-jpg.github.io/xinjin/hell.png');
     background-size: cover; background-position: center;
-    z-index: -1; filter: brightness(0.6) contrast(1.2);
+    z-index: -1; 
+    background-color: #2a0000;
+    filter: brightness(0.5) contrast(1.2);
   }
 
-  /* 旁白文字 */
+  /* 旁白文字（主角的话） */
   .narration {
     font-size: 1.5rem; letter-spacing: 3px; line-height: 2;
     text-shadow: 2px 2px 5px #000; text-align: center;
     padding: 0 10%; opacity: 0; transition: opacity 2s ease;
-    z-index: 10;
+    z-index: 10; margin-bottom: 50px;
   }
   .narration.show { opacity: 1; }
 
-  /* 隐藏的“？” */
+  /* 结局字样 */
+  .ending-title {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    font-size: 4rem; font-weight: bold; color: #ff2b2b; 
+    text-shadow: 0 0 20px red; letter-spacing: 8px;
+    opacity: 0; transition: opacity 2s ease; z-index: 20;
+    white-space: nowrap;
+  }
+  .ending-title.show { opacity: 1; }
+
+  /* 那个突兀的问号 */
   .question-mark {
-    position: absolute; right: 20%; top: 40%;
-    font-size: 10rem; color: #ff2b2b; font-weight: bold;
-    text-shadow: 0 0 20px red, 0 0 50px darkred;
-    opacity: 0; transform: scale(0.5);
-    transition: opacity 0.5s ease, transform 0.5s ease;
-    z-index: 20; pointer-events: none;
+    display: inline-block; 
+    opacity: 0; transform: scale(3); 
+    transition: opacity 0.1s ease, transform 0.3s ease;
+    color: #fff; /* 问号用纯白色，更显眼、更惊悚 */
+    text-shadow: 0 0 30px #fff, 0 0 10px red;
   }
   .question-mark.show { opacity: 1; transform: scale(1); }
+
 </style>
 </head>
 <body>
 
   <div class="hell-bg"></div>
 
+  <!-- 主角的话 -->
   <div class="narration" id="narration">
     主角看着看着，突然感觉好热啊，抬头一看...<br><br>
     holyshit，我怎么在地狱里？？？
   </div>
 
-  <!-- 恐怖的大问号 -->
-  <div class="question-mark" id="qMark">？</div>
+  <!-- 结局字样 -->
+  <div class="ending-title" id="endingTitle">
+    结局二“地狱<span class="question-mark" id="qMark">？</span>”
+  </div>
 
 <script>
-  // 3秒后出现旁白
-  setTimeout(() => {
-    document.getElementById('narration').classList.add('show');
-  }, 500);
+  window.addEventListener('load', () => {
+    // 1. 一开始，屏幕变红，主角说话
+    setTimeout(() => {
+      document.getElementById('narration').classList.add('show');
+    }, 500);
 
-  // 旁白出现后的3秒，突然出现巨大的问号
-  setTimeout(() => {
-    document.getElementById('qMark').classList.add('show');
-  }, 4000);
+    // 2. 主角话出现 3 秒后，浮现“结局二”字样
+    setTimeout(() => {
+      document.getElementById('endingTitle').classList.add('show');
+      // 让主角的话渐渐淡出，把视觉中心留给结局
+      document.getElementById('narration').style.opacity = '0.2';
+    }, 3500);
+
+    // 3. 结局字样出现 3 秒后，地狱后面突然砸出一个问号
+    setTimeout(() => {
+      document.getElementById('qMark').classList.add('show');
+      
+      // 顺便加个手机震动效果（如果是手机打开的话）
+      if (navigator.vibrate) {
+        navigator.vibrate([200, 100, 200]);
+      }
+    }, 6500); // 3.5秒 + 3秒 = 6.5秒
+  });
 </script>
 </body>
 </html>
