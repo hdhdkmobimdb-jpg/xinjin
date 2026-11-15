@@ -23,15 +23,28 @@
   }
   .intro-text.show { opacity: 1; }
 
+  /* ================= 废区背景图 ================= */
   .scene-bg {
     position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-    background-color: #0a0a0a; z-index: 1;
+    background-color: #0a0a0a; /* 如果图片没加载出来就是纯黑 */
+    
+    /* 👇👇👇 把你的废区图片名字填到这里！ 👇👇👇 */
+    background-image: url('./village.png'); 
+    
+    background-size: cover; 
+    background-position: center;
+    background-repeat: no-repeat;
+    z-index: 1;
+    
+    /* 把图片压暗，这样手电筒照上去才有感觉 */
+    filter: brightness(0.3); 
   }
 
   /* 手电筒遮罩 */
   .flashlight {
     position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-    background: radial-gradient(circle 120px at 50% 50%, transparent 0%, rgba(0,0,0,0.98) 100%);
+    /* 光圈中心是透明的，四周是纯黑 */
+    background: radial-gradient(circle 150px at 50% 50%, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 100%);
     z-index: 2; pointer-events: none; transition: background 0.1s;
   }
 
@@ -43,28 +56,24 @@
 
   /* ================= 隐藏的眼睛 ================= */
   .eye-spot {
-    position: absolute; top: 15%; right: 15%; width: 50px; height: 50px;
+    position: absolute; top: 15%; right: 15%; width: 60px; height: 60px;
     border-radius: 50%; cursor: pointer; z-index: 5;
-    /* 极其微弱的黑色轮廓，只有在光下才能隐约看到 */
-    box-shadow: inset 0 0 10px rgba(0,0,0,1);
     display: flex; justify-content: center; align-items: center;
   }
   .eye-spot.open {
     background: #000;
-    border: 2px solid #ff2b2b; /* 睁开后出现血红色的边框 */
-    box-shadow: 0 0 20px red;
+    border: 2px solid #ff2b2b;
+    box-shadow: 0 0 30px red;
   }
-  /* 眼睛内部的眼白 */
   .eye-white {
-    width: 30px; height: 15px; background: #fff; border-radius: 50%;
+    width: 35px; height: 18px; background: #fff; border-radius: 50%;
     display: none;
   }
-  /* 瞳孔 */
   .eye-pupil {
-    width: 10px; height: 10px; background: #000; border-radius: 50%;
+    width: 12px; height: 12px; background: #000; border-radius: 50%;
     position: absolute;
   }
-  .eye-spot.open .eye-white { display: flex; justify-content: center; align-items: center; animation: openEye 0.5s ease-out; }
+  .eye-spot.open .eye-white { display: flex; justify-content: center; align-items: center; animation: openEye 0.4s ease-out; }
   
   @keyframes openEye {
     0% { transform: scaleY(0); }
@@ -74,7 +83,7 @@
   /* ================= 结局一：团圆 ================= */
   .home-screen {
     position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-    background: #111; /* 家用暖光底色 */
+    background: #111; 
     display: none; flex-direction: column; justify-content: center; align-items: center;
     z-index: 100; opacity: 0; transition: opacity 3s ease;
     padding: 0 10%;
@@ -85,17 +94,17 @@
     font-size: 1.5rem; line-height: 2; letter-spacing: 2px;
     color: #ddd; text-align: center; text-shadow: 1px 1px 3px #000;
     opacity: 0; transition: opacity 2s ease;
+    max-width: 800px;
   }
   .dialogue.show { opacity: 1; }
 
-  /* “咦？”的专属样式 */
   .yi-text {
     color: #fff; font-weight: bold; font-size: 2rem; cursor: pointer;
     display: inline-block; margin-left: 10px;
     transition: all 0.5s ease;
   }
 
-  /* 扭曲变红特效 */
+  /* 扭曲特效 */
   .glitch-mode {
     color: #ff0000 !important;
     text-shadow: 0 0 20px red, 0 0 10px darkred !important;
@@ -110,10 +119,9 @@
     100% { transform: translate(1px, -1px) rotate(1deg); }
   }
 
-  /* 全屏血红色扭曲覆盖层 */
   .blood-overlay {
     position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(50,0,0,0.5); backdrop-filter: blur(2px) hue-rotate(90deg);
+    background: rgba(50,0,0,0.6); backdrop-filter: blur(3px) hue-rotate(90deg);
     display: none; z-index: 110;
   }
   .blood-overlay.show { display: block; }
@@ -127,22 +135,20 @@
   <div class="flashlight" id="flashlight"></div>
 
   <div class="explore-area" id="exploreArea">
-    <!-- 右上角隐藏的眼睛 -->
     <div class="eye-spot" id="eyeSpot" ontouchstart="startStare()" ontouchend="stopStare()" onmousedown="startStare()" onmouseup="stopStare()" onmouseleave="stopStare()">
       <div class="eye-white"><div class="eye-pupil"></div></div>
     </div>
   </div>
 
-  <!-- 结局一：团圆（家里） -->
+  <!-- 结局一：团圆 -->
   <div class="home-screen" id="homeScreen">
     <div class="dialogue" id="homeDialogue"></div>
   </div>
 
-  <!-- 全屏扭曲遮罩 -->
   <div class="blood-overlay" id="bloodOverlay"></div>
 
 <script>
-  // 模拟打字音效
+  // 合成打字音效
   function playTypingSound() {
     const AudioContext = window.AudioContext || window.webkitAudioContext;
     if (!AudioContext) return;
@@ -160,7 +166,7 @@
     osc.stop(ctx.currentTime + 0.05);
   }
 
-  // 通用打字机效果
+  // 通用打字机
   function typeWriter(el, text, speed, callback) {
     el.innerHTML = '';
     el.classList.add('show');
@@ -178,7 +184,7 @@
     type();
   }
 
-  // 启动流程
+  // 开场剧情
   window.addEventListener('load', () => {
     typeWriter(document.getElementById('introText'), "三天后，到了新京村。", 150, () => {
       setTimeout(() => {
@@ -188,7 +194,6 @@
             setTimeout(() => {
               document.getElementById('introText').style.display = 'none';
               document.getElementById('exploreArea').classList.add('show');
-              // 初始化手电筒位置在中间
               updateLight(window.innerWidth/2, window.innerHeight/2);
             }, 1500);
           }, 2000);
@@ -200,14 +205,15 @@
   // ================== 手电筒特效 ==================
   const flashlight = document.getElementById('flashlight');
   function updateLight(x, y) {
-    flashlight.style.background = `radial-gradient(circle 120px at ${x}px ${y}px, transparent 0%, rgba(0,0,0,0.98) 100%)`;
+    // 中心完全透明（能看清背景图），四周纯黑（遮住背景图）
+    flashlight.style.background = `radial-gradient(circle 150px at ${x}px ${y}px, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 100%)`;
   }
   document.addEventListener('mousemove', (e) => updateLight(e.clientX, e.clientY));
   document.addEventListener('touchmove', (e) => {
     if(e.touches.length > 0) updateLight(e.touches[0].clientX, e.touches[0].clientY);
   }, { passive: true });
 
-  // ================== 照妖镜：盯住眼睛3秒 ==================
+  // ================== 照射眼睛 ==================
   let stareTimer = null;
   let isStaring = false;
 
@@ -215,17 +221,13 @@
     if (isStaring) return;
     isStaring = true;
     
-    // 3秒后眼睛睁开
     stareTimer = setTimeout(() => {
-      const eye = document.getElementById('eyeSpot');
-      eye.classList.add('open'); // 触发睁眼动画
+      document.getElementById('eyeSpot').classList.add('open');
       
-      // 睁眼后2秒，视野变暗，进入结局
       setTimeout(() => {
         triggerHomeEnding();
       }, 2000);
-
-    }, 3000); // 必须摸（按）住3秒
+    }, 3000);
   }
 
   function stopStare() {
@@ -235,33 +237,34 @@
 
   // ================== 结局一：回家 ==================
   function triggerHomeEnding() {
-    // 视野变黑
     flashlight.style.background = 'rgba(0,0,0,1)';
     
     setTimeout(() => {
       document.getElementById('exploreArea').style.display = 'none';
       flashlight.style.display = 'none';
       
-      // 显示家庭界面
       const home = document.getElementById('homeScreen');
       home.classList.add('show');
       
       const dialogue = document.getElementById('homeDialogue');
       
-      // 打出一长串对话
-      typeWriter(dialogue, "结局一“团圆”<br><br>“原来这一切只是个梦啊，哈哈哈，哈哈哈，哈哈，哈，”", 100, () => {
-        // 对话打完，生成那个可点击的“咦？”
+      typeWriter(dialogue, "兄弟你怎么那么久醒啊，蛋糕都快化了。", 100, () => {
         setTimeout(() => {
-          dialogue.innerHTML += `<span class="yi-text" onclick="triggerGlitch()">咦？</span>`;
-        }, 500);
+          dialogue.innerHTML = "原来这都是一场梦，哈哈哈，哈哈哈，哈哈，哈，<br><br>结局一“团圆”";
+          playTypingSound(); 
+          
+          setTimeout(() => {
+            dialogue.innerHTML += `<span class="yi-text" onclick="triggerGlitch()">咦？</span>`;
+          }, 1500);
+          
+        }, 2000);
       });
       
-    }, 2000); // 黑屏过渡时间
+    }, 2000);
   }
 
-  // ================== 最后的扭曲反转 ==================
+  // ================== 扭曲反转 ==================
   function triggerGlitch() {
-    // 播放极短促的惊悚音效
     const AudioContext = window.AudioContext || window.webkitAudioContext;
     if (AudioContext) {
       const ctx = new AudioContext();
@@ -274,12 +277,8 @@
       osc.stop(ctx.currentTime + 1);
     }
 
-    // 文字扭曲变红
     document.getElementById('homeDialogue').classList.add('glitch-mode');
-    // 全屏加红色扭曲滤镜
     document.getElementById('bloodOverlay').classList.add('show');
-    
-    // 手机震动
     if (navigator.vibrate) navigator.vibrate([500, 200, 500]);
   }
 </script>
