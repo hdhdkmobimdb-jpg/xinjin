@@ -3,56 +3,145 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>新京村 - 探索</title>
+<title>新京村 - 废区探索</title>
 <style>
   * { margin:0; padding:0; box-sizing:border-box; }
   body {
     -webkit-user-select: none; user-select: none;
     height: 100vh; height: 100dvh;
     background-color: #000; color: #fff; 
-    font-family: "SimSun", serif; overflow: hidden;
-    display: flex; justify-content: center; align-items: center;
+    font-family: "SimSun", serif; overflow: hidden; position: relative;
   }
 
   /* 开场文字 */
   .intro-text {
     font-size: 2rem; letter-spacing: 5px; color: #ddd;
-    text-align: center; position: absolute;
-    opacity: 0; transition: opacity 2s ease;
-    z-index: 10;
+    text-align: center; position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    opacity: 0; transition: opacity 2s ease; z-index: 10;
+    pointer-events: none;
   }
   .intro-text.show { opacity: 1; }
 
-  /* 结局黑屏 */
-  .ending-screen {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background-color: #000; display: none; 
-    flex-direction: column; justify-content: center; align-items: center;
-    z-index: 100; opacity: 0; transition: opacity 2s ease;
+  .scene-bg {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    background-color: #0a0a0a; z-index: 1;
   }
-  .ending-screen.show { display: flex; opacity: 1; }
+
+  /* 手电筒遮罩 */
+  .flashlight {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    background: radial-gradient(circle 120px at 50% 50%, transparent 0%, rgba(0,0,0,0.98) 100%);
+    z-index: 2; pointer-events: none; transition: background 0.1s;
+  }
+
+  .explore-area {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    z-index: 3; display: none; opacity: 0; transition: opacity 2s;
+  }
+  .explore-area.show { display: block; opacity: 1; }
+
+  /* ================= 隐藏的眼睛 ================= */
+  .eye-spot {
+    position: absolute; top: 15%; right: 15%; width: 50px; height: 50px;
+    border-radius: 50%; cursor: pointer; z-index: 5;
+    /* 极其微弱的黑色轮廓，只有在光下才能隐约看到 */
+    box-shadow: inset 0 0 10px rgba(0,0,0,1);
+    display: flex; justify-content: center; align-items: center;
+  }
+  .eye-spot.open {
+    background: #000;
+    border: 2px solid #ff2b2b; /* 睁开后出现血红色的边框 */
+    box-shadow: 0 0 20px red;
+  }
+  /* 眼睛内部的眼白 */
+  .eye-white {
+    width: 30px; height: 15px; background: #fff; border-radius: 50%;
+    display: none;
+  }
+  /* 瞳孔 */
+  .eye-pupil {
+    width: 10px; height: 10px; background: #000; border-radius: 50%;
+    position: absolute;
+  }
+  .eye-spot.open .eye-white { display: flex; justify-content: center; align-items: center; animation: openEye 0.5s ease-out; }
   
-  .ending-title { color: #ff2b2b; font-size: 3rem; font-weight: bold; margin-bottom: 30px; letter-spacing: 10px; }
-  .ending-desc { color: #888; font-size: 1.2rem; line-height: 2; letter-spacing: 2px; text-align: center; }
+  @keyframes openEye {
+    0% { transform: scaleY(0); }
+    100% { transform: scaleY(1); }
+  }
+
+  /* ================= 结局一：团圆 ================= */
+  .home-screen {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    background: #111; /* 家用暖光底色 */
+    display: none; flex-direction: column; justify-content: center; align-items: center;
+    z-index: 100; opacity: 0; transition: opacity 3s ease;
+    padding: 0 10%;
+  }
+  .home-screen.show { display: flex; opacity: 1; }
+
+  .dialogue {
+    font-size: 1.5rem; line-height: 2; letter-spacing: 2px;
+    color: #ddd; text-align: center; text-shadow: 1px 1px 3px #000;
+    opacity: 0; transition: opacity 2s ease;
+  }
+  .dialogue.show { opacity: 1; }
+
+  /* “咦？”的专属样式 */
+  .yi-text {
+    color: #fff; font-weight: bold; font-size: 2rem; cursor: pointer;
+    display: inline-block; margin-left: 10px;
+    transition: all 0.5s ease;
+  }
+
+  /* 扭曲变红特效 */
+  .glitch-mode {
+    color: #ff0000 !important;
+    text-shadow: 0 0 20px red, 0 0 10px darkred !important;
+    animation: shake 0.1s infinite;
+  }
+  @keyframes shake {
+    0% { transform: translate(1px, 1px) rotate(0deg); }
+    20% { transform: translate(-2px, 0px) rotate(-1deg); }
+    40% { transform: translate(1px, -2px) rotate(1deg); }
+    60% { transform: translate(-1px, 2px) rotate(0deg); }
+    80% { transform: translate(2px, 1px) rotate(-1deg); }
+    100% { transform: translate(1px, -1px) rotate(1deg); }
+  }
+
+  /* 全屏血红色扭曲覆盖层 */
+  .blood-overlay {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(50,0,0,0.5); backdrop-filter: blur(2px) hue-rotate(90deg);
+    display: none; z-index: 110;
+  }
+  .blood-overlay.show { display: block; }
 </style>
 </head>
 <body>
 
   <div class="intro-text" id="introText"></div>
 
-  <!-- 结局一：失踪 -->
-  <div class="ending-screen" id="badEnding">
-    <div class="ending-title">结局一：“失踪”</div>
-    <div class="ending-desc">
-      坏结局。<br><br>
-      你的好兄弟彻底消失了，没人知道他在哪里。
+  <div class="scene-bg"></div>
+  <div class="flashlight" id="flashlight"></div>
+
+  <div class="explore-area" id="exploreArea">
+    <!-- 右上角隐藏的眼睛 -->
+    <div class="eye-spot" id="eyeSpot" ontouchstart="startStare()" ontouchend="stopStare()" onmousedown="startStare()" onmouseup="stopStare()" onmouseleave="stopStare()">
+      <div class="eye-white"><div class="eye-pupil"></div></div>
     </div>
   </div>
 
-<script>
-  let step = 0;
-  const introEl = document.getElementById('introText');
+  <!-- 结局一：团圆（家里） -->
+  <div class="home-screen" id="homeScreen">
+    <div class="dialogue" id="homeDialogue"></div>
+  </div>
 
+  <!-- 全屏扭曲遮罩 -->
+  <div class="blood-overlay" id="bloodOverlay"></div>
+
+<script>
   // 模拟打字音效
   function playTypingSound() {
     const AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -71,17 +160,17 @@
     osc.stop(ctx.currentTime + 0.05);
   }
 
-  // 打字效果
-  function typeWriter(text, callback) {
-    introEl.innerHTML = '';
-    introEl.classList.add('show');
+  // 通用打字机效果
+  function typeWriter(el, text, speed, callback) {
+    el.innerHTML = '';
+    el.classList.add('show');
     let i = 0;
     function type() {
       if (i < text.length) {
-        introEl.innerHTML += text.charAt(i);
+        el.innerHTML += text.charAt(i);
         playTypingSound();
         i++;
-        setTimeout(type, 200); // 打两个字
+        setTimeout(type, speed);
       } else {
         if (callback) callback();
       }
@@ -91,19 +180,108 @@
 
   // 启动流程
   window.addEventListener('load', () => {
-    // 前3秒显示“三天后”
-    typeWriter("三天后，到了新京村。", () => {
+    typeWriter(document.getElementById('introText'), "三天后，到了新京村。", 150, () => {
       setTimeout(() => {
-        // 主角说话
-        typeWriter("为什么这里是个废区？", () => {
-          // 说话后3秒触发结局
+        typeWriter(document.getElementById('introText'), "为什么这里是个废区？", 200, () => {
           setTimeout(() => {
-            document.getElementById('badEnding').classList.add('show');
-          }, 3000);
+            document.getElementById('introText').style.opacity = '0';
+            setTimeout(() => {
+              document.getElementById('introText').style.display = 'none';
+              document.getElementById('exploreArea').classList.add('show');
+              // 初始化手电筒位置在中间
+              updateLight(window.innerWidth/2, window.innerHeight/2);
+            }, 1500);
+          }, 2000);
         });
-      }, 2000);
+      }, 1500);
     });
   });
+
+  // ================== 手电筒特效 ==================
+  const flashlight = document.getElementById('flashlight');
+  function updateLight(x, y) {
+    flashlight.style.background = `radial-gradient(circle 120px at ${x}px ${y}px, transparent 0%, rgba(0,0,0,0.98) 100%)`;
+  }
+  document.addEventListener('mousemove', (e) => updateLight(e.clientX, e.clientY));
+  document.addEventListener('touchmove', (e) => {
+    if(e.touches.length > 0) updateLight(e.touches[0].clientX, e.touches[0].clientY);
+  }, { passive: true });
+
+  // ================== 照妖镜：盯住眼睛3秒 ==================
+  let stareTimer = null;
+  let isStaring = false;
+
+  function startStare() {
+    if (isStaring) return;
+    isStaring = true;
+    
+    // 3秒后眼睛睁开
+    stareTimer = setTimeout(() => {
+      const eye = document.getElementById('eyeSpot');
+      eye.classList.add('open'); // 触发睁眼动画
+      
+      // 睁眼后2秒，视野变暗，进入结局
+      setTimeout(() => {
+        triggerHomeEnding();
+      }, 2000);
+
+    }, 3000); // 必须摸（按）住3秒
+  }
+
+  function stopStare() {
+    isStaring = false;
+    clearTimeout(stareTimer);
+  }
+
+  // ================== 结局一：回家 ==================
+  function triggerHomeEnding() {
+    // 视野变黑
+    flashlight.style.background = 'rgba(0,0,0,1)';
+    
+    setTimeout(() => {
+      document.getElementById('exploreArea').style.display = 'none';
+      flashlight.style.display = 'none';
+      
+      // 显示家庭界面
+      const home = document.getElementById('homeScreen');
+      home.classList.add('show');
+      
+      const dialogue = document.getElementById('homeDialogue');
+      
+      // 打出一长串对话
+      typeWriter(dialogue, "结局一“团圆”<br><br>“原来这一切只是个梦啊，哈哈哈，哈哈哈，哈哈，哈，”", 100, () => {
+        // 对话打完，生成那个可点击的“咦？”
+        setTimeout(() => {
+          dialogue.innerHTML += `<span class="yi-text" onclick="triggerGlitch()">咦？</span>`;
+        }, 500);
+      });
+      
+    }, 2000); // 黑屏过渡时间
+  }
+
+  // ================== 最后的扭曲反转 ==================
+  function triggerGlitch() {
+    // 播放极短促的惊悚音效
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    if (AudioContext) {
+      const ctx = new AudioContext();
+      const osc = ctx.createOscillator();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(100, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(50, ctx.currentTime + 1);
+      osc.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + 1);
+    }
+
+    // 文字扭曲变红
+    document.getElementById('homeDialogue').classList.add('glitch-mode');
+    // 全屏加红色扭曲滤镜
+    document.getElementById('bloodOverlay').classList.add('show');
+    
+    // 手机震动
+    if (navigator.vibrate) navigator.vibrate([500, 200, 500]);
+  }
 </script>
 </body>
 </html>
