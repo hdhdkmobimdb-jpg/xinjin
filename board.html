@@ -37,21 +37,25 @@
     transition: all 2s ease; z-index: 10;
   }
   .board-container.show { opacity: 1; transform: translateY(0); }
+  
+  /* 权限剥夺后的灰暗状态 */
+  .board-container.locked { filter: grayscale(1) contrast(0.5) brightness(0.3); pointer-events: none; }
 
   .header {
     text-align: center; color: #ccc; font-size: 1.8rem;
     letter-spacing: 5px; border-bottom: 2px solid #444; padding-bottom: 15px; margin-bottom: 20px;
   }
+  
+  #xinjing { cursor: pointer; } /* 让新京可以点 */
+  #lixin, #wlshi { cursor: pointer; transition: color 0.2s; }
+  #lixin:active { color: #fff; }
+  #wlshi:active { color: #ff2b2b; }
 
   .admin-list {
     display: flex; justify-content: space-around;
     color: #888; font-size: 1.2rem; margin-bottom: 30px;
   }
   .admin-list span { border-bottom: 1px dashed #444; padding-bottom: 5px; }
-  
-  #lixin, #wlshi { cursor: pointer; transition: color 0.2s; }
-  #lixin:active { color: #fff; }
-  #wlshi:active { color: #ff2b2b; }
 
   .tasks { display: flex; justify-content: space-around; }
   .task-btn {
@@ -63,6 +67,7 @@
 
   .footer-warning { text-align: center; color: #444; font-size: 0.9rem; margin-top: 30px; letter-spacing: 2px; }
 
+  /* ================= 各种弹窗 ================= */
   .popup {
     position: absolute; top: 0; left: 0; width: 100%; height: 100%;
     background: rgba(0,0,0,0.95); 
@@ -76,7 +81,7 @@
   
   .lock-box { background: #111; border: 1px solid #333; padding: 30px; width: 80%; max-width: 500px; display: flex; flex-direction: column; align-items: center; }
   .input-group { width: 100%; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
-  .input-group input { width: 65%; padding: 10px; background: #000; border: 1px solid #444; color: #fff; text-align: center; }
+  .input-group input { width: 65%; padding: 10px; background: #000; border: 1px solid #444; color: #fff; text-align: center; outline: none; }
   .submit-btn { margin-top: 10px; padding: 12px 30px; background: transparent; border: 1px solid #555; color: #ccc; cursor: pointer; }
   .error-msg { color: #ff2b2b; font-size: 1rem; margin-top: 15px; display: none; }
   .close-popup { margin-top: 30px; padding: 12px 30px; background: rgba(255,255,255,0.1); border: 1px solid #666; color: #ccc; cursor: pointer; }
@@ -90,7 +95,7 @@
   .detail-text { font-size: 1.1rem; line-height: 1.8; text-indent: 2em; }
   .detail-text p { margin-bottom: 15px; }
 
-  /* 隐藏的黑屏页（第五个案件触发） */
+  /* 隐藏的黑屏页 */
   .blank-page {
     position: absolute; top: 0; left: 0; width: 100%; height: 100%;
     background: #000; z-index: 200;
@@ -100,12 +105,34 @@
   .blank-page.show { opacity: 1; pointer-events: auto; }
   .blank-hint-text { color: #444; font-size: 1.2rem; letter-spacing: 2px; opacity: 0; transition: opacity 2s ease; text-align: center; line-height: 2; }
   .blank-hint-text.show { opacity: 1; }
+
+  /* 经文恐怖页 */
+  .sutra-screen {
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000;
+    display: none; justify-content: center; align-items: center; z-index: 500;
+    padding: 10%; overflow: hidden;
+  }
+  .sutra-screen.show { display: flex; }
+  
+  .sutra-text {
+    color: #888; font-size: 1.4rem; line-height: 2; letter-spacing: 4px; text-align: justify;
+    transition: color 3s ease, transform 3s ease, filter 3s ease;
+    transform-origin: center;
+  }
+  
+  /* 变红+扭曲特效 */
+  .sutra-text.twisted {
+    color: #ff0000;
+    transform: scale(1.1) rotate(2deg) skewX(5deg);
+    filter: blur(1px) drop-shadow(0 0 10px red);
+  }
 </style>
 </head>
 <body>
 
   <div class="rotate">请将手机横屏</div>
 
+  <!-- 主界面 -->
   <div class="board-container" id="boardPanel">
     <div class="header"><span id="xinjing" onclick="clickXinJing(event)">新京</span>村村委会公告板</div>
     
@@ -185,8 +212,14 @@
     <div class="close-popup" onclick="closeAll()" style="background: #000; color: #fff; border-color: #333;">【 返回 】</div>
   </div>
 
+  <!-- 经文恐怖页 -->
+  <div class="sutra-screen" id="sutraScreen">
+    <div class="sutra-text" id="sutraText">
+      佛又曰：楞夜蒙萨度那地室啰诃娑南卢唎嚧羯参苏嚧哆耶曳驮烁呼南罚卢摩怛写佛曳佛穆沙伽娑啰驮怛驮无皤咩地曳帝栗醯墀舍输曳
+    </div>
+  </div>
+
 <script>
-  // 👇 完整的 7 个故事数据恢复了！ 👇
   const stories = [
     { title: "20号12月摊位线歪了！赵大婶和周叔吵起来", content: "<p>赵大婶，原名赵桂芬，57岁，菜市场豆腐摊贩；周叔，原名周德海，61岁，修鞋匠。</p><p>一天赵大婶在20号12月摊位卖豆腐，周叔非说她豆腐箱压过了修鞋摊的线。赵大婶不服：“我在这20号12月摊位卖了12年豆腐，豆腐都没喊冤！”周叔拿卷尺一量，说压了三指宽，赵大婶说那线本来就是歪的。两人越吵越凶，围观的人里三层外三层。</p><p>最后副村长来了，一查，原来那粉笔线是去年划的，被鸡蹭歪了。调解结果：赵大婶送周叔两块豆腐，周叔给赵大婶免费钉一副鞋掌。</p>" },
     { title: "10月10号24个蛋托送货单少给钱！刘嫂和钱大爷争执", content: "<p>刘嫂，原名刘春梅，34岁，卖鸡蛋；钱大爷，原名钱有福，70岁，收废品。</p><p>刘嫂拿着一张10月10号24个蛋托的送货单找钱大爷，说他少给了10块钱。钱大爷瞪眼：“我按10月10号单结的，咋会错？”刘嫂说单上明明写着24个蛋托，钱大爷说那是10月10日*编号24*，不是24个蛋托。两人吵得鸡蛋筐都晃了。</p><p>副村长赶来，翻过单子一看，背面写着“蛋托10个，碎2个，实收8个”。最后钱大爷补了3块，刘嫂送他两个鸡蛋，嘴里还嘟囔：“下回单子写清楚，别拿数字绕人！”</p>" },
@@ -211,7 +244,7 @@
     list.innerHTML = html;
   }
 
-  // ================== 主界面点击逻辑 ==================
+  // ================== 核心修复：主界面点击 ==================
   let wangClickCount = 0;
 
   function clickWang(event) {
@@ -219,7 +252,7 @@
     wangClickCount++;
     if (wangClickCount >= 3) {
       wangClickCount = 0; 
-      window.location.href = './wanglishi.html'; 
+      window.location.href = './wanglishi.html'; // 确保你的文件名是纯英文！
     }
   }
 
@@ -228,6 +261,7 @@
     wangClickCount = 0;
   }
 
+  // 连点“新京”10次
   let xinjingCount = 0;
   function clickXinJing(event) {
     if (event) event.stopPropagation();
@@ -238,15 +272,55 @@
     }
   }
 
+  // ================== 解密与剥夺权限逻辑 ==================
+  let isLocked = false;
+
   function checkMasterPassword() {
+    if (isLocked) return;
     const val = document.getElementById('masterInput').value.trim();
     const err = document.getElementById('masterError');
+    
     if (val === '50705') {
-      alert("【档案柜弹开】\n\n里面没有纸质文件，只有一个老旧的录音笔。\n\n（后续内容敬请期待...）");
-      closeAll();
+      document.getElementById('masterLockPopup').classList.remove('show');
+      
+      // 显示经文
+      const sutraScreen = document.getElementById('sutraScreen');
+      const sutraText = document.getElementById('sutraText');
+      sutraScreen.classList.add('show');
+      
+      // 3秒后扭曲变红
+      setTimeout(() => {
+        sutraText.classList.add('twisted');
+      }, 3000);
+
+      // 再过3秒（总共6秒），踢回公告板并剥夺权限
+      setTimeout(() => {
+        sutraScreen.classList.remove('show');
+        lockPermissions();
+      }, 6000);
+
     } else {
       err.style.display = 'block';
     }
+  }
+
+  function lockPermissions() {
+    isLocked = true;
+    // 让主界面变灰变暗
+    document.getElementById('boardPanel').classList.add('locked');
+    
+    // 劫持全局点击事件
+    document.body.addEventListener('click', function(e) {
+      if (isLocked) {
+        alert("你没有这个权限。");
+      }
+    }, true); // 使用捕获阶段拦截所有点击
+
+    // 专属跳转：点击【新京】两个字时，进入探索
+    document.getElementById('xinjing').onclick = function(e) {
+      e.stopPropagation();
+      window.location.href = './explore.html';
+    };
   }
 
   // ================== 故事详情与黑屏解密 ==================
@@ -276,9 +350,7 @@
   }
 
   function closeDetail() { document.getElementById('detailPopup').classList.remove('show'); }
-  
   function revealBlankHint() { document.getElementById('blankHint').classList.add('show'); }
-  
   function showLost() { document.getElementById('lostPopup').classList.add('show'); }
   
   function showLock() {
